@@ -4,56 +4,43 @@ import {
   serial,
   varchar,
   text,
-  integer,
-  uniqueIndex,
-  index,
+  timestamp,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
-export const categoryEnum = pgEnum("category", [
-  "Vestidos",
-  "Blusas",
-  "Faldas",
-  "Abrigos",
-  "Accesorios",
+export const productStatusEnum = pgEnum("productstatus", [
+  "AVAILABLE",
+  "RESERVED",
+  "SOLD",
 ]);
 
-export const sizeEnum = pgEnum("size", ["Único", "XS", "S", "M", "L", "XL"]);
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  category: varchar("category").notNull(),
+  photoUrls: text("photo_urls")
+    .array()
+    .notNull()
+    .default(sql`ARRAY[]::text[]`),
+  descriptionSummary: text("description_summary").notNull().default(""),
+  size: varchar("size").notNull(),
+  color: varchar("color").notNull(),
+  specificMeasurements: varchar("specific_measurements").notNull().default(""),
+  status: productStatusEnum("status").notNull().default("AVAILABLE"),
+});
 
-export const products = pgTable(
-  "products",
-  {
-    id: serial("id").primaryKey(),
-    sku: varchar("sku", { length: 20 }).notNull().unique(),
-    slug: varchar("slug", { length: 200 }).notNull().unique(),
-    name: varchar("name", { length: 200 }).notNull(),
-    category: categoryEnum("category").notNull(),
-    priceARS: integer("price_ars").notNull(),
-    shortDescription: text("short_description").notNull(),
-    description: text("description").notNull(),
-    tags: text("tags").array().notNull().default([]),
-    images: text("images").array().notNull().default([]),
-  },
-  (table) => [
-    uniqueIndex("products_sku_idx").on(table.sku),
-    uniqueIndex("products_slug_idx").on(table.slug),
-    index("products_category_idx").on(table.category),
-  ],
-);
-
-export const productSizes = pgTable(
-  "product_sizes",
-  {
-    id: serial("id").primaryKey(),
-    productId: integer("product_id")
-      .notNull()
-      .references(() => products.id, { onDelete: "cascade" }),
-    size: sizeEnum("size").notNull(),
-    /** Stock disponible para este talle */
-    stock: integer("stock").notNull().default(0),
-  },
-  (table) => [index("product_sizes_product_id_idx").on(table.productId)],
-);
+export const transactions = pgTable("transactions", {
+  id: serial("id").primaryKey(),
+  productId: serial("product_id").references(() => products.id),
+  transactionType: varchar("transaction_type").notNull(),
+  whatsappContact: varchar("whatsapp_contact"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
 
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
-export type ProductSize = typeof productSizes.$inferSelect;
+export type Transaction = typeof transactions.$inferSelect;
+export type NewTransaction = typeof transactions.$inferInsert;
+export type AvailableProduct = Product & { status: "AVAILABLE" };
