@@ -22,7 +22,7 @@ export const products: Product[] = [
     description:
       "Un vestido pensado para días de luz: tejido liviano, cintura marcada y una estampa floral sutil. Ideal para eventos, salidas y looks románticos. Terminación premium y corte favorecedor.",
     tags: ["Nuevo", "Floral", "Edición limitada"],
-    images: ["/products/floral-rose.svg", "/products/floral-ivory.svg", "/products/floral-lilac.svg"],
+    images: ["/products/prenda1.png", "/products/floral-ivory.svg"],
     availableSizes: ["XS", "S", "M", "L", "XL"],
   },
   {
@@ -35,7 +35,7 @@ export const products: Product[] = [
     description:
       "Blusa de inspiración romántica con textura satinada y caída elegante. Combina perfecto con jeans claros o faldas de tiro alto. Diseñada para elevar cualquier outfit.",
     tags: ["Satin", "Best seller"],
-    images: ["/products/floral-peony.svg", "/products/floral-ivory.svg", "/products/floral-rose.svg"],
+    images: ["/products/prenda2.png", "/products/floral-peony.svg"],
     availableSizes: ["XS", "S", "M", "L"],
   },
   {
@@ -48,7 +48,7 @@ export const products: Product[] = [
     description:
       "Falda midi de tiro alto con línea A. Su estructura liviana genera movimiento y un look estilizado. Perfecta para combinar con tops y blusas minimalistas.",
     tags: ["Midi", "Elegante"],
-    images: ["/products/floral-lilac.svg", "/products/floral-rose.svg", "/products/floral-peony.svg"],
+    images: ["/products/prenda3.png", "/products/floral-lilac.svg"],
     availableSizes: ["XS", "S", "M", "L"],
   },
   {
@@ -61,7 +61,7 @@ export const products: Product[] = [
     description:
       "Abrigo sastrero con inspiración clásica y paleta rosada. Pensado para combinar con prendas neutras o florales y elevar el look sin esfuerzo.",
     tags: ["Sastrería", "Temporada"],
-    images: ["/products/floral-ivory.svg", "/products/floral-rose.svg", "/products/floral-lilac.svg"],
+    images: ["/products/prenda4.png", "/products/floral-ivory.svg"],
     availableSizes: ["S", "M", "L", "XL"],
   },
   {
@@ -74,7 +74,7 @@ export const products: Product[] = [
     description:
       "Pañuelo con estampa botánica y tacto suave. Ideal para sumar un detalle floral a cualquier look: en el cuello, en el pelo o atado al bolso.",
     tags: ["Accesorio", "Regalo"],
-    images: ["/products/floral-peony.svg", "/products/floral-ivory.svg", "/products/floral-rose.svg"],
+    images: ["/products/prenda5.png", "/products/floral-peony.svg"],
     availableSizes: ["Único"],
   },
   {
@@ -87,7 +87,7 @@ export const products: Product[] = [
     description:
       "Vestido minimal con detalles románticos sutiles. Corte limpio, tela liviana y terminaciones pensadas para durar. Un básico elevado para tu guardarropa.",
     tags: ["Minimal", "Esencial"],
-    images: ["/products/floral-ivory.svg", "/products/floral-lilac.svg", "/products/floral-rose.svg"],
+    images: ["/products/prenda6.png", "/products/floral-rose.svg"],
     availableSizes: ["XS", "S", "M", "L"],
   },
 ];
