@@ -34,7 +34,7 @@ export function ProductCarousel({
         ref={scrollerRef}
         className={cn(
           "flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 scroll-smooth",
-          "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
         )}
         aria-label="Carrusel de productos destacados"
       >
@@ -45,11 +45,11 @@ export function ProductCarousel({
             className="snap-start"
             aria-label={`Ver ${p.name}`}
           >
-            <Card className="w-[260px] overflow-hidden rounded-3xl border bg-card shadow-sm transition-transform hover:-translate-y-0.5">
+            <Card className="w-[240px] sm:w-[260px] md:w-[280px] overflow-hidden rounded-2xl sm:rounded-3xl border bg-card shadow-sm transition-transform hover:-translate-y-0.5">
               <div
                 className={cn(
                   "relative w-full",
-                  isCompact ? "h-32 sm:h-36" : "aspect-[4/5]"
+                  isCompact ? "h-28 sm:h-32 md:h-36" : "aspect-[6/5]",
                 )}
               >
                 <Image
@@ -63,8 +63,12 @@ export function ProductCarousel({
                 <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
               </div>
 
-              <CardContent className={cn("space-y-1 px-5 pt-4", isCompact && "pb-4")}>
-                <div className="text-sm text-muted-foreground">{p.category}</div>
+              <CardContent
+                className={cn("space-y-1 px-5 pt-4", isCompact && "pb-4")}
+              >
+                <div className="text-sm text-muted-foreground">
+                  {p.category}
+                </div>
                 <div className="text-base font-semibold tracking-tight">
                   {p.name}
                 </div>
@@ -102,4 +106,3 @@ export function ProductCarousel({
     </div>
   );
 }
-

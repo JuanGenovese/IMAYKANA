@@ -13,19 +13,25 @@ export const metadata = {
 
 export default function ProductsPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10 md:py-14">
+    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-10 md:py-14">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div className="space-y-2">
-          <Badge variant="secondary">Catálogo</Badge>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+          <Badge variant="secondary" className="text-xs sm:text-sm">
+            Catálogo
+          </Badge>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
             Productos
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Elegí una prenda para ver detalles, fotos y comprar por WhatsApp.
           </p>
         </div>
 
-        <Button asChild variant="outline" className="w-fit">
+        <Button
+          asChild
+          variant="outline"
+          className="w-full sm:w-fit h-10 sm:h-9 text-sm"
+        >
           <Link href="/carrito" className="gap-2">
             Ir al carrito
             <ArrowRight className="size-4" />
@@ -33,7 +39,7 @@ export default function ProductsPage() {
         </Button>
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 sm:mt-8 grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {products.map((p) => (
           <Link key={p.id} href={`/producto/${p.slug}`} className="group">
             <Card className="overflow-hidden rounded-3xl transition-transform group-hover:-translate-y-0.5">
@@ -70,4 +76,3 @@ export default function ProductsPage() {
     </main>
   );
 }
-

@@ -25,7 +25,7 @@ export default function CartPage() {
 
   const total = resolved.reduce(
     (acc, it) => acc + it!.product.priceARS * it!.quantity,
-    0
+    0,
   );
 
   const message =
@@ -37,7 +37,7 @@ export default function CartPage() {
           ...resolved.map((it) => {
             const lineTotal = it!.product.priceARS * it!.quantity;
             return `- ${it!.product.name} (${it!.product.id}) | Talle: ${it!.size} | Cantidad: ${it!.quantity} | Subtotal: ${formatARS(
-              lineTotal
+              lineTotal,
             )}`;
           }),
           "",
@@ -49,20 +49,24 @@ export default function CartPage() {
   const buyUrl = buildWhatsAppUrl(WHATSAPP_PHONE, message);
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10 md:py-14">
+    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-10 md:py-14">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
             Carrito
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {count > 0
               ? `Tenés ${count} prenda(s) seleccionada(s).`
               : "Aún no agregaste prendas."}
           </p>
         </div>
 
-        <Button asChild variant="outline" className="w-fit">
+        <Button
+          asChild
+          variant="outline"
+          className="w-full sm:w-fit h-10 sm:h-9 text-sm"
+        >
           <Link href="/productos" className="gap-2">
             Seguir mirando
             <ArrowRight className="size-4" />
@@ -70,7 +74,7 @@ export default function CartPage() {
         </Button>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="mt-6 sm:mt-8 grid gap-6 lg:grid-cols-[1fr_minmax(280px,360px)]">
         <div className="space-y-4">
           {resolved.length === 0 ? (
             <Card className="rounded-3xl">
@@ -90,7 +94,10 @@ export default function CartPage() {
             </Card>
           ) : (
             resolved.map((it) => (
-              <Card key={`${it!.productId}:${it!.size}`} className="rounded-3xl">
+              <Card
+                key={`${it!.productId}:${it!.size}`}
+                className="rounded-3xl"
+              >
                 <CardContent className="grid gap-4 px-5 py-5 sm:grid-cols-[96px_1fr]">
                   <div className="relative aspect-[4/5] w-24 overflow-hidden rounded-2xl border bg-card">
                     <Image
@@ -112,7 +119,8 @@ export default function CartPage() {
                           {it!.product.name}
                         </div>
                         <div className="mt-1 text-sm text-muted-foreground">
-                          Talle: <span className="text-foreground">{it!.size}</span>
+                          Talle:{" "}
+                          <span className="text-foreground">{it!.size}</span>
                         </div>
                       </div>
 
@@ -134,7 +142,11 @@ export default function CartPage() {
                           variant="outline"
                           size="icon-sm"
                           onClick={() =>
-                            setQuantity(it!.productId, it!.size, it!.quantity - 1)
+                            setQuantity(
+                              it!.productId,
+                              it!.size,
+                              it!.quantity - 1,
+                            )
                           }
                           aria-label="Restar"
                         >
@@ -148,7 +160,11 @@ export default function CartPage() {
                           variant="outline"
                           size="icon-sm"
                           onClick={() =>
-                            setQuantity(it!.productId, it!.size, it!.quantity + 1)
+                            setQuantity(
+                              it!.productId,
+                              it!.size,
+                              it!.quantity + 1,
+                            )
                           }
                           aria-label="Sumar"
                         >
@@ -204,4 +220,3 @@ export default function CartPage() {
     </main>
   );
 }
-

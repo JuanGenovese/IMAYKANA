@@ -20,7 +20,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
   const [activeImage, setActiveImage] = React.useState(0);
   const [size, setSize] = React.useState<Product["availableSizes"][number]>(
-    product.availableSizes[0]
+    product.availableSizes[0],
   );
   const [justAdded, setJustAdded] = React.useState(false);
 
@@ -42,9 +42,9 @@ export function ProductDetailClient({ product }: { product: Product }) {
   };
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2">
-      <div className="space-y-4">
-        <div className="relative overflow-hidden rounded-3xl border bg-card">
+    <div className="grid gap-6 sm:gap-8 md:gap-10 lg:grid-cols-2">
+      <div className="space-y-3 sm:space-y-4">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border bg-card">
           <div className="relative aspect-[4/5] w-full">
             <Image
               src={product.images[activeImage]}
@@ -58,15 +58,15 @@ export function ProductDetailClient({ product }: { product: Product }) {
           </div>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {product.images.map((src, idx) => (
             <button
               key={src}
               type="button"
               onClick={() => setActiveImage(idx)}
               className={cn(
-                "relative h-24 w-20 shrink-0 overflow-hidden rounded-2xl border bg-card",
-                idx === activeImage ? "ring-2 ring-primary" : "opacity-80"
+                "relative h-20 sm:h-24 w-16 sm:w-20 shrink-0 overflow-hidden rounded-xl sm:rounded-2xl border bg-card",
+                idx === activeImage ? "ring-2 ring-primary" : "opacity-80",
               )}
               aria-label={`Ver foto ${idx + 1}`}
             >
@@ -75,39 +75,47 @@ export function ProductDetailClient({ product }: { product: Product }) {
                 alt={`${product.name} foto ${idx + 1}`}
                 fill
                 className="object-cover"
-                sizes="80px"
+                sizes="(max-width: 640px) 64px, 80px"
               />
             </button>
           ))}
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="space-y-3">
+      <div className="space-y-5 sm:space-y-6">
+        <div className="space-y-2 sm:space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary">{product.category}</Badge>
+            <Badge variant="secondary" className="text-xs sm:text-sm">
+              {product.category}
+            </Badge>
             {product.tags.slice(0, 2).map((t) => (
-              <Badge key={t}>{t}</Badge>
+              <Badge key={t} className="text-xs sm:text-sm">
+                {t}
+              </Badge>
             ))}
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
             {product.name}
           </h1>
-          <p className="text-muted-foreground">{product.shortDescription}</p>
-          <div className="text-2xl font-semibold">{formatARS(product.priceARS)}</div>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            {product.shortDescription}
+          </p>
+          <div className="text-xl sm:text-2xl font-semibold">
+            {formatARS(product.priceARS)}
+          </div>
         </div>
 
         <Separator />
 
-        <div className="space-y-3">
-          <div className="text-sm font-semibold">Talle</div>
+        <div className="space-y-2 sm:space-y-3">
+          <div className="text-xs sm:text-sm font-semibold">Talle</div>
           <div className="flex flex-wrap gap-2">
             {product.availableSizes.map((s) => (
               <Button
                 key={s}
                 type="button"
                 variant={s === size ? "default" : "outline"}
-                className="rounded-full"
+                className="rounded-full h-9 sm:h-10 px-4 sm:px-5 text-sm"
                 onClick={() => setSize(s)}
               >
                 {s}
@@ -116,44 +124,47 @@ export function ProductDetailClient({ product }: { product: Product }) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button asChild className="gap-2">
+        <div className="flex flex-col gap-2 sm:gap-3">
+          <Button asChild className="gap-2 h-11 sm:h-10 w-full sm:w-auto">
             <a href={buyUrl} target="_blank" rel="noreferrer">
               Comprar por WhatsApp
               <Heart className="size-4" />
             </a>
           </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="gap-2"
-            onClick={onAddToCart}
-          >
-            {justAdded ? (
-              <>
-                Agregado
-                <Check className="size-4" />
-              </>
-            ) : (
-              <>
-                Agregar al carrito
-                <ShoppingCart className="size-4" />
-              </>
-            )}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="gap-2 h-11 sm:h-10 flex-1 sm:flex-none"
+              onClick={onAddToCart}
+            >
+              {justAdded ? (
+                <>
+                  Agregado
+                  <Check className="size-4" />
+                </>
+              ) : (
+                <>
+                  Agregar al carrito
+                  <ShoppingCart className="size-4" />
+                </>
+              )}
+            </Button>
 
-          <Button asChild variant="ghost">
-            <Link href="/carrito">Ver carrito</Link>
-          </Button>
+            <Button asChild variant="ghost" className="h-11 sm:h-10">
+              <Link href="/carrito">Ver carrito</Link>
+            </Button>
+          </div>
         </div>
 
         <div className="rounded-3xl border bg-card p-6">
           <div className="text-sm font-semibold">Detalle</div>
-          <p className="mt-3 text-sm text-muted-foreground">{product.description}</p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {product.description}
+          </p>
         </div>
       </div>
     </div>
   );
 }
-
