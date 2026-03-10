@@ -2,12 +2,11 @@
 
 import * as React from "react";
 
-import type { Product } from "@/lib/products";
-
 export type CartItem = {
   productId: string;
-  size: Product["availableSizes"][number];
+  size: string;
   quantity: number;
+  price?: number;
 };
 
 type CartState = {
@@ -20,7 +19,7 @@ type CartContextValue = CartState & {
   setQuantity: (
     productId: string,
     size: CartItem["size"],
-    quantity: number
+    quantity: number,
   ) => void;
   clear: () => void;
   count: number;
@@ -75,7 +74,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setState((prev) => {
           const next = [...prev.items];
           const idx = next.findIndex(
-            (i) => i.productId === item.productId && i.size === item.size
+            (i) => i.productId === item.productId && i.size === item.size,
           );
           if (idx >= 0) {
             next[idx] = {
@@ -91,7 +90,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeItem: (productId, size) => {
         setState((prev) => ({
           items: prev.items.filter(
-            (i) => !(i.productId === productId && i.size === size)
+            (i) => !(i.productId === productId && i.size === size),
           ),
         }));
       },
@@ -102,7 +101,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             items: prev.items.map((i) =>
               i.productId === productId && i.size === size
                 ? { ...i, quantity: q }
-                : i
+                : i,
             ),
           };
         });
@@ -119,4 +118,3 @@ export function useCartContext() {
   if (!ctx) throw new Error("useCartContext must be used within CartProvider");
   return ctx;
 }
-

@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Trash2 } from "lucide-react";
@@ -8,42 +9,71 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
-import { formatARS, getProductById } from "@/lib/products";
+import { getProductsByIds } from "@/app/actions/db";
+import type { Product } from "@/lib/db/schema";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
+type ResolvedCartItem = {
+  productId: string;
+  size: string;
+  quantity: number;
+  product: Product;
+};
+
 export default function CartPage() {
   const { items, setQuantity, removeItem, clear, count } = useCart();
+  const [resolvedProducts, setResolvedProducts] = React.useState<
+    Record<string, Product>
+  >({});
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchCartProducts = async () => {
+      if (items.length === 0) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      const ids = Array.from(new Set(items.map((it) => Number(it.productId))));
+      try {
+        const fetched = await getProductsByIds(ids);
+        const productMap: Record<string, Product> = {};
+        for (const p of fetched) {
+          productMap[p.id.toString()] = p;
+        }
+        setResolvedProducts(productMap);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCartProducts();
+  }, [items]);
 
   const resolved = items
     .map((it) => {
-      const product = getProductById(it.productId);
+      const product = resolvedProducts[it.productId];
       if (!product) return null;
       return { ...it, product };
     })
-    .filter(Boolean);
+    .filter(Boolean) as ResolvedCartItem[];
 
-  const total = resolved.reduce(
-    (acc, it) => acc + it!.product.priceARS * it!.quantity,
-    0,
-  );
+  // Sin precio en la BD temporalmente, total = 0
+  const total = 0;
 
   const message =
     resolved.length === 0
       ? "Hola! Quiero hacer una consulta."
       : [
-          "Hola! Quiero comprar estas prendas:",
+          "Hola! Quiero consultar disponibilidad y precio por estas prendas:",
           "",
           ...resolved.map((it) => {
-            const lineTotal = it!.product.priceARS * it!.quantity;
-            return `- ${it!.product.name} (${it!.product.id}) | Talle: ${it!.size} | Cantidad: ${it!.quantity} | Subtotal: ${formatARS(
-              lineTotal,
-            )}`;
+            return `- ${it.product.name} (Ref: ${it.product.id}) | Talle: ${it.size} | Color: ${it.product.color}`;
           }),
           "",
-          `Total aprox: ${formatARS(total)}`,
-          "",
-          "¿Me confirmás disponibilidad y opciones de envío/retiro?",
+          "¿Me confirmás disponibilidad y retiro?",
         ].join("\n");
 
   const buyUrl = buildWhatsAppUrl(WHATSAPP_PHONE, message);
@@ -76,7 +106,13 @@ export default function CartPage() {
 
       <div className="mt-6 sm:mt-8 grid gap-6 lg:grid-cols-[1fr_minmax(280px,360px)]">
         <div className="space-y-4">
-          {resolved.length === 0 ? (
+          {isLoading && items.length > 0 ? (
+            <Card className="rounded-3xl">
+              <CardContent className="px-6 py-10 text-center text-muted-foreground animate-pulse">
+                Cargando carrito...
+              </CardContent>
+            </Card>
+          ) : resolved.length === 0 ? (
             <Card className="rounded-3xl">
               <CardContent className="px-6 py-10 text-center">
                 <p className="text-sm text-muted-foreground">
@@ -94,33 +130,36 @@ export default function CartPage() {
             </Card>
           ) : (
             resolved.map((it) => (
-              <Card
-                key={`${it!.productId}:${it!.size}`}
-                className="rounded-3xl"
-              >
+              <Card key={`${it.productId}:${it.size}`} className="rounded-3xl">
                 <CardContent className="grid gap-4 px-5 py-5 sm:grid-cols-[96px_1fr]">
                   <div className="relative aspect-[4/5] w-24 overflow-hidden rounded-2xl border bg-card">
-                    <Image
-                      src={it!.product.images[0]}
-                      alt={it!.product.name}
-                      fill
-                      className="object-cover"
-                      sizes="96px"
-                    />
+                    {it.product.photoUrls && it.product.photoUrls.length > 0 ? (
+                      <Image
+                        src={it.product.photoUrls[0]}
+                        alt={it.product.name}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                        ---
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="text-sm text-muted-foreground">
-                          {it!.product.category}
+                          {it.product.category}
                         </div>
                         <div className="text-base font-semibold tracking-tight">
-                          {it!.product.name}
+                          {it.product.name}
                         </div>
                         <div className="mt-1 text-sm text-muted-foreground">
                           Talle:{" "}
-                          <span className="text-foreground">{it!.size}</span>
+                          <span className="text-foreground">{it.size}</span>
                         </div>
                       </div>
 
@@ -129,7 +168,7 @@ export default function CartPage() {
                         variant="ghost"
                         size="icon"
                         aria-label="Quitar"
-                        onClick={() => removeItem(it!.productId, it!.size)}
+                        onClick={() => removeItem(it.productId, it.size)}
                       >
                         <Trash2 className="size-4" />
                       </Button>
@@ -142,29 +181,21 @@ export default function CartPage() {
                           variant="outline"
                           size="icon-sm"
                           onClick={() =>
-                            setQuantity(
-                              it!.productId,
-                              it!.size,
-                              it!.quantity - 1,
-                            )
+                            setQuantity(it.productId, it.size, it.quantity - 1)
                           }
                           aria-label="Restar"
                         >
                           -
                         </Button>
                         <div className="min-w-10 text-center text-sm font-semibold">
-                          {it!.quantity}
+                          {it.quantity}
                         </div>
                         <Button
                           type="button"
                           variant="outline"
                           size="icon-sm"
                           onClick={() =>
-                            setQuantity(
-                              it!.productId,
-                              it!.size,
-                              it!.quantity + 1,
-                            )
+                            setQuantity(it.productId, it.size, it.quantity + 1)
                           }
                           aria-label="Sumar"
                         >
@@ -172,8 +203,8 @@ export default function CartPage() {
                         </Button>
                       </div>
 
-                      <div className="text-sm font-semibold">
-                        {formatARS(it!.product.priceARS * it!.quantity)}
+                      <div className="text-sm font-semibold text-muted-foreground">
+                        Consultar precio
                       </div>
                     </div>
                   </div>
@@ -188,14 +219,10 @@ export default function CartPage() {
             <CardContent className="space-y-4 px-6 py-6">
               <div className="text-sm font-semibold">Resumen</div>
               <Separator />
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Total aprox.</span>
-                <span className="font-semibold">{formatARS(total)}</span>
-              </div>
 
               <Button asChild className="w-full">
                 <a href={buyUrl} target="_blank" rel="noreferrer">
-                  Comprar por WhatsApp
+                  Consultar por WhatsApp
                 </a>
               </Button>
 
@@ -210,8 +237,8 @@ export default function CartPage() {
               </Button>
 
               <p className="text-xs text-muted-foreground">
-                El botón abre WhatsApp con un mensaje automático. Podés editarlo
-                antes de enviar.
+                El botón abre WhatsApp con un mensaje automático detallando tu
+                selección.
               </p>
             </CardContent>
           </Card>

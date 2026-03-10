@@ -6,8 +6,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import type { Product } from "@/lib/products";
-import { formatARS } from "@/lib/products";
+import type { Product } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -41,7 +40,7 @@ export function ProductCarousel({
         {products.map((p) => (
           <Link
             key={`${p.id}`}
-            href={`/producto/${p.slug}`}
+            href={`/producto/${p.id}`}
             className="snap-start"
             aria-label={`Ver ${p.name}`}
           >
@@ -52,14 +51,20 @@ export function ProductCarousel({
                   isCompact ? "h-28 sm:h-32 md:h-36" : "aspect-[6/5]",
                 )}
               >
-                <Image
-                  src={p.images[0]}
-                  alt={p.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 260px, 300px"
-                  priority={false}
-                />
+                {p.photoUrls && p.photoUrls.length > 0 ? (
+                  <Image
+                    src={p.photoUrls[0]}
+                    alt={p.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 260px, 300px"
+                    priority={false}
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-muted">
+                    <span className="text-muted-foreground">Sin imagen</span>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
               </div>
 
@@ -73,7 +78,7 @@ export function ProductCarousel({
                   {p.name}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {formatARS(p.priceARS)}
+                  Consultar precio
                 </div>
               </CardContent>
             </Card>

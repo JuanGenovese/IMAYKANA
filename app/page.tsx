@@ -4,9 +4,11 @@ import { ArrowRight } from "lucide-react";
 import { ProductCarousel } from "../components/product-carousel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { featuredProducts } from "@/lib/products";
+import { getFeaturedProducts } from "@/lib/db/queries";
 
-export default function Home() {
+export default async function Home() {
+  const featuredProducts = await getFeaturedProducts(5);
+
   return (
     <main className="w-full">
       {/* 1. Hero Section - Full Screen */}
