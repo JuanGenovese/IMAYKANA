@@ -1,18 +1,13 @@
-import {
-  pgTable,
-  pgEnum,
-  serial,
-  varchar,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, text, timestamp } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-export const productStatusEnum = pgEnum("productstatus", [
-  "AVAILABLE",
-  "RESERVED",
-  "SOLD",
-]);
+export const PRODUCT_STATUS = {
+  AVAILABLE: "AVAILABLE",
+  RESERVED: "RESERVED",
+  SOLD: "SOLD",
+} as const;
+
+export type ProductStatus = keyof typeof PRODUCT_STATUS;
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -26,7 +21,10 @@ export const products = pgTable("products", {
   size: varchar("size").notNull(),
   color: varchar("color").notNull(),
   specificMeasurements: varchar("specific_measurements").notNull().default(""),
-  status: productStatusEnum("status").notNull().default("AVAILABLE"),
+  status: varchar("status")
+    .notNull()
+    .$type<ProductStatus>()
+    .default("AVAILABLE"),
 });
 
 export const transactions = pgTable("transactions", {
@@ -43,4 +41,3 @@ export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type Transaction = typeof transactions.$inferSelect;
 export type NewTransaction = typeof transactions.$inferInsert;
-export type AvailableProduct = Product & { status: "AVAILABLE" };
