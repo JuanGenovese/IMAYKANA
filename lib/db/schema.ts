@@ -37,7 +37,18 @@ export const transactions = pgTable("transactions", {
     .defaultNow(),
 });
 
+export const admins = pgTable("admins", {
+  id: serial("id").primaryKey(),
+  email: varchar("email").notNull().unique(),
+  passwordHash: varchar("password_hash").notNull(),
+  name: varchar("name"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type Transaction = typeof transactions.$inferSelect;
 export type NewTransaction = typeof transactions.$inferInsert;
+export type Admin = typeof admins.$inferSelect;
