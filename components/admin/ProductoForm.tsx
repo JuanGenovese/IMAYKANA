@@ -18,9 +18,9 @@ const productoSchema = z.object({
   category: z.string().min(1, "La categoría es obligatoria"),
   size: z.string().min(1, "El talle es obligatorio"),
   color: z.string().min(1, "El color es obligatorio"),
-  descriptionSummary: z.string().default(""),
-  specificMeasurements: z.string().default(""),
-  status: z.enum(["AVAILABLE", "RESERVED", "SOLD"]).default("AVAILABLE"),
+  descriptionSummary: z.string(),
+  specificMeasurements: z.string(),
+  status: z.enum(["AVAILABLE", "RESERVED", "SOLD"]),
 });
 
 type ProductoValues = z.infer<typeof productoSchema>;
@@ -176,7 +176,9 @@ export function ProductoForm({ producto }: ProductoFormProps) {
             setPhotoUrls((prev) => [...prev, ...urls]);
             toast.success(`${urls.length} imagen(es) subidas`);
           }}
-          onUploadError={(err) => toast.error(`Error al subir: ${err.message}`)}
+          onUploadError={(err) => {
+            toast.error(`Error al subir: ${err.message}`);
+          }}
         />
       </div>
 
