@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, ShoppingCart } from "lucide-react";
+import { ShoppingBag, ShoppingCart, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
@@ -12,10 +12,15 @@ export function SiteHeader() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/20 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3">
-        <Link href="/" className="group flex items-center gap-2">
-          {/*<span className="inline-flex size-9 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/15">
-            <Rose className="size-5 text-primary" />
-          </span>*/}
+        <Link
+          href="/"
+          className="group flex items-center gap-2"
+          onClick={() => {
+            if (window.location.pathname === "/") {
+              window.scrollTo({ top: 0, behavior: "instant" });
+            }
+          }}
+        >
           <span className="leading-tight">
             <span className="block text-lg sm:text-xl font-serif font-bold tracking-normal">
               IMAYKANA
@@ -64,6 +69,18 @@ export function SiteHeader() {
                   </span>
                 ) : null}
               </span>
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 sm:h-10 sm:w-10"
+            aria-label="Iniciar sesión"
+          >
+            <Link href="/login">
+              <User className="size-4 sm:size-5" />
             </Link>
           </Button>
         </div>

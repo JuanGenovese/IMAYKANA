@@ -1,29 +1,7 @@
 "use client";
-
 import * as React from "react";
-
-export type CartItem = {
-  productId: string;
-  size: string;
-  quantity: number;
-  price?: number;
-};
-
-type CartState = {
-  items: CartItem[];
-};
-
-type CartContextValue = CartState & {
-  addItem: (item: CartItem) => void;
-  removeItem: (productId: string, size: CartItem["size"]) => void;
-  setQuantity: (
-    productId: string,
-    size: CartItem["size"],
-    quantity: number,
-  ) => void;
-  clear: () => void;
-  count: number;
-};
+import type { CartState } from "@/app/carrito/Types";
+import type { CartContextValue } from "@/app/carrito/Types";
 
 const CART_STORAGE_KEY = "imaykana_cart_v1";
 
@@ -87,14 +65,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           return { items: next };
         });
       },
-      removeItem: (productId, size) => {
+      eliminarItem: (productId, size) => {
         setState((prev) => ({
           items: prev.items.filter(
             (i) => !(i.productId === productId && i.size === size),
           ),
         }));
       },
-      setQuantity: (productId, size, quantity) => {
+      setCantidad: (productId, size, quantity) => {
         setState((prev) => {
           const q = Math.max(1, Math.min(99, Math.floor(quantity || 1)));
           return {
@@ -106,7 +84,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           };
         });
       },
-      clear: () => setState({ items: [] }),
+      limpiar: () => setState({ items: [] }),
     };
   }, [state]);
 

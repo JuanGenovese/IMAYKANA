@@ -5,9 +5,10 @@ import { db } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 
 export async function getProductsByIds(ids: number[]) {
-  if (!ids || ids.length === 0) return [];
+  const validIds = ids.filter((id) => !isNaN(id));
+  if (validIds.length === 0) return [];
 
   return await db.query.products.findMany({
-    where: inArray(products.id, ids),
+    where: inArray(products.id, validIds),
   });
 }

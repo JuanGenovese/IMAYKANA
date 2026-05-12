@@ -7,7 +7,21 @@ export function ScrollToTop() {
   const pathname = usePathname();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!window.location.hash) {
+        window.scrollTo(0, 0);
+      }
+    };
+
+    handleScroll();
+    window.addEventListener("popstate", handleScroll);
+    return () => window.removeEventListener("popstate", handleScroll);
   }, [pathname]);
 
   return null;

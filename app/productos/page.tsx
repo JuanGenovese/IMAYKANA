@@ -14,7 +14,7 @@ export const metadata = {
 export default async function ProductsPage() {
   const products = await getAvailableProducts();
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-10 md:py-14">
+    <main className="mx-auto w-full max-w-6xl px-4 pt-16 pb-8 sm:pt-28 sm:pb-10 md:pt-32 md:pb-14">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div className="space-y-2">
           <Badge variant="secondary" className="text-xs sm:text-sm">

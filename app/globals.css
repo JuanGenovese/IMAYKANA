@@ -123,7 +123,7 @@
   }
   html {
     @apply scroll-smooth;
-    scroll-snap-type: y proximity;
+    scroll-padding-top: 80px;
   }
   body {
     @apply bg-background text-foreground;
@@ -152,11 +152,5 @@
   }
   .font-serif {
     font-family: var(--font-serif);
-  }
-  /* Utility to reset snap behavior on pages that don't need it */
-  .no-snap {
-    scroll-snap-type: none;
-    height: auto;
-    overflow-y: auto;
   }
 }

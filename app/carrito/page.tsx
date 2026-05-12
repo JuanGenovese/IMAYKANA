@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Trash2 } from "lucide-react";
@@ -10,25 +11,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
 import { getProductsByIds } from "@/app/actions/db";
-import type { Product } from "@/lib/db/schema";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
-
-type ResolvedCartItem = {
-  productId: string;
-  size: string;
-  quantity: number;
-  product: Product;
-};
+import type { ResolvedCartItem, Indice } from "./Types";
 
 export default function CartPage() {
-  const { items, setQuantity, removeItem, clear, count } = useCart();
-  const [resolvedProducts, setResolvedProducts] = React.useState<
-    Record<string, Product>
-  >({});
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const { items, setCantidad, eliminarItem, limpiar, count } = useCart();
+  const [resolvedProducts, setResolvedProducts] = useState<Indice>({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchCartProducts = async () => {
       if (items.length === 0) {
         setIsLoading(false);
@@ -36,10 +28,14 @@ export default function CartPage() {
       }
 
       setIsLoading(true);
-      const ids = Array.from(new Set(items.map((it) => Number(it.productId))));
+      const ids = Array.from(
+        new Set(
+          items.map((item) => Number(item.productId)).filter((id) => !isNaN(id)),
+        ),
+      );
       try {
         const fetched = await getProductsByIds(ids);
-        const productMap: Record<string, Product> = {};
+        const productMap: Indice = {};
         for (const p of fetched) {
           productMap[p.id.toString()] = p;
         }
@@ -60,9 +56,6 @@ export default function CartPage() {
     })
     .filter(Boolean) as ResolvedCartItem[];
 
-  // Sin precio en la BD temporalmente, total = 0
-  const total = 0;
-
   const message =
     resolved.length === 0
       ? "Hola! Quiero hacer una consulta."
@@ -79,7 +72,7 @@ export default function CartPage() {
   const buyUrl = buildWhatsAppUrl(WHATSAPP_PHONE, message);
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-10 md:py-14">
+    <main className="mx-auto w-full max-w-6xl px-4 pt-16 pb-8 sm:pt-28 sm:pb-10 md:pt-32 md:pb-14">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div className="space-y-2">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
@@ -92,16 +85,18 @@ export default function CartPage() {
           </p>
         </div>
 
-        <Button
-          asChild
-          variant="outline"
-          className="w-full sm:w-fit h-10 sm:h-9 text-sm"
-        >
-          <Link href="/productos" className="gap-2">
-            Seguir mirando
-            <ArrowRight className="size-4" />
-          </Link>
-        </Button>
+        {resolved.length === 0 ? null : (
+          <Button
+            asChild
+            variant="outline"
+            className="w-full sm:w-fit h-10 sm:h-9 text-sm"
+          >
+            <Link href="/productos" className="gap-2">
+              Seguir mirando
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        )}
       </div>
 
       <div className="mt-6 sm:mt-8 grid gap-6 lg:grid-cols-[1fr_minmax(280px,360px)]">
@@ -168,7 +163,7 @@ export default function CartPage() {
                         variant="ghost"
                         size="icon"
                         aria-label="Quitar"
-                        onClick={() => removeItem(it.productId, it.size)}
+                        onClick={() => eliminarItem(it.productId, it.size)}
                       >
                         <Trash2 className="size-4" />
                       </Button>
@@ -181,7 +176,7 @@ export default function CartPage() {
                           variant="outline"
                           size="icon-sm"
                           onClick={() =>
-                            setQuantity(it.productId, it.size, it.quantity - 1)
+                            setCantidad(it.productId, it.size, it.quantity - 1)
                           }
                           aria-label="Restar"
                         >
@@ -195,7 +190,7 @@ export default function CartPage() {
                           variant="outline"
                           size="icon-sm"
                           onClick={() =>
-                            setQuantity(it.productId, it.size, it.quantity + 1)
+                            setCantidad(it.productId, it.size, it.quantity + 1)
                           }
                           aria-label="Sumar"
                         >
@@ -214,35 +209,37 @@ export default function CartPage() {
           )}
         </div>
 
-        <div className="space-y-4">
-          <Card className="rounded-3xl">
-            <CardContent className="space-y-4 px-6 py-6">
-              <div className="text-sm font-semibold">Resumen</div>
-              <Separator />
+        {resolved.length === 0 ? null : (
+          <div className="space-y-4">
+            <Card className="rounded-3xl">
+              <CardContent className="space-y-4 px-6 py-6">
+                <div className="text-sm font-semibold">Resumen</div>
+                <Separator />
 
-              <Button asChild className="w-full">
-                <a href={buyUrl} target="_blank" rel="noreferrer">
-                  Consultar por WhatsApp
-                </a>
-              </Button>
+                <Button asChild className="w-full">
+                  <a href={buyUrl} target="_blank" rel="noreferrer">
+                    Consultar por WhatsApp
+                  </a>
+                </Button>
 
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={clear}
-                disabled={resolved.length === 0}
-              >
-                Vaciar carrito
-              </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={limpiar}
+                  disabled={resolved.length === 0}
+                >
+                  Vaciar carrito
+                </Button>
 
-              <p className="text-xs text-muted-foreground">
-                El botón abre WhatsApp con un mensaje automático detallando tu
-                selección.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+                <p className="text-xs text-muted-foreground">
+                  El botón abre WhatsApp con un mensaje automático detallando tu
+                  selección.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </main>
   );

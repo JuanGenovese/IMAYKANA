@@ -38,7 +38,7 @@ export default async function ProductPage({ params }: Props) {
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 md:py-12">
+    <main className="mx-auto w-full max-w-6xl px-4 pt-16 pb-8 md:pt-32 md:pb-12">
       <div className="mb-6">
         <Button asChild variant="ghost" className="gap-2">
           <Link href="/productos">

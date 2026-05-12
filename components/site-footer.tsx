@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t bg-glass snap-start">
+    <footer className="border-t bg-glass">
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">
         <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 md:grid-cols-3">
           <div className="space-y-2 sm:space-y-3 sm:col-span-2 md:col-span-1">

@@ -10,10 +10,19 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
+      const isOnLogin = nextUrl.pathname === "/login";
+
       if (isOnDashboard) {
         if (isLoggedIn) return true;
         return false; // Redirige a /login
       }
+
+      if (isOnLogin) {
+        if (isLoggedIn)
+          return Response.redirect(new URL("/dashboard", nextUrl));
+        return true; // Perimte a anónimos ver el login y no hacer block loop
+      }
+
       return true;
     },
   },

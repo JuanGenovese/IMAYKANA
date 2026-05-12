@@ -12,7 +12,7 @@ export default async function Home() {
   return (
     <main className="w-full">
       {/* 1. Hero Section - Full Screen */}
-      <section className="snap-start relative w-full min-h-[calc(100vh-64px)] h-[100vh] max-h-[900px] bg-[url('/design/landing-bg.jpg')] bg-cover bg-center bg-no-repeat">
+      <section className="relative w-full min-h-[calc(100vh-64px)] h-[100vh] max-h-[900px] bg-[url('/design/landing-bg.jpg')] bg-cover bg-center bg-no-repeat">
         <div
           className="pointer-events-none absolute inset-0 bg-background/10"
           aria-hidden="true"
@@ -64,7 +64,7 @@ export default async function Home() {
       </section>
 
       {/* 2. Featured Products Section - Full Screen */}
-      <section className="snap-start flex min-h-[80vh] sm:min-h-[90vh] h-svh w-full items-center justify-center bg-transparent relative py-12 sm:py-16 md:py-0">
+      <section className="flex min-h-[80vh] sm:min-h-[90vh] h-svh w-full items-center justify-center bg-transparent relative py-12 sm:py-16 md:py-0">
         {/* Background Decoration */}
         <div className="absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
           <div className="h-[40vh] sm:h-[50vh] md:h-[60vh] w-[40vh] sm:w-[50vh] md:w-[60vh] rounded-full bg-primary/5 blur-3xl" />
@@ -96,7 +96,7 @@ export default async function Home() {
       {/* 3. Brand Section - Full Screen */}
       <section
         id="marca"
-        className="snap-start flex min-h-[80vh] sm:min-h-[90vh] h-svh w-full items-center justify-center bg-transparent py-12 sm:py-16 md:py-0"
+        className="flex min-h-[80vh] sm:min-h-[90vh] h-svh w-full items-center justify-center bg-transparent py-12 sm:py-16 md:py-0"
       >
         <div className="w-full max-w-6xl px-4">
           <div className="grid gap-8 sm:gap-10 md:gap-12 lg:grid-cols-2 lg:items-center">
@@ -155,7 +155,7 @@ export default async function Home() {
       {/* 4. How to Buy Section - Full Screen */}
       <section
         id="como-comprar"
-        className="snap-start flex min-h-[80vh] sm:min-h-[90vh] h-svh w-full items-center justify-center bg-transparent py-12 sm:py-16 md:py-0"
+        className="flex min-h-[80vh] sm:min-h-[90vh] h-svh w-full items-center justify-center bg-transparent py-12 sm:py-16 md:py-0"
       >
         <div className="w-full max-w-6xl px-4">
           <div className="rounded-3xl border bg-card/80 p-8 md:p-16 backdrop-blur-md shadow-2xl">
