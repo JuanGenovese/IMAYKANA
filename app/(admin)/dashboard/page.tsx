@@ -1,36 +1,64 @@
 import { db } from "@/lib/db";
 import { products } from "@/lib/db/schema";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
+import { Suspense } from "react";
 
 async function getStats() {
   const result = await db
-    .select({ count: sql<number>`count(*)` })
+    .select({
+      total: sql<number>`count(*)`,
+      disponibles: sql<number>`count(*) filter (where ${products.status} = 'AVAILABLE')`,
+      vendidos: sql<number>`count(*) filter (where ${products.status} = 'SOLD')`,
+    })
     .from(products);
-  return { totalProductos: Number(result[0]?.count ?? 0) };
+
+  const stats = result[0] || { total: 0, disponibles: 0, vendidos: 0 };
+
+  return {
+    totalProductos: Number(stats.total),
+    disponibles: Number(stats.disponibles),
+    vendidos: Number(stats.vendidos),
+  };
 }
 
-export default async function DashboardPage() {
-  const { totalProductos } = await getStats();
+function StatsSkeleton() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="h-28 animate-pulse rounded-xl border border-gray-200 bg-white" />
+      ))}
+    </div>
+  );
+}
 
+async function StatsCards() {
+  const { totalProductos, disponibles, vendidos } = await getStats();
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <p className="text-sm font-medium text-gray-500">Total Productos</p>
+        <p className="mt-2 text-3xl font-bold text-gray-900">{totalProductos}</p>
+      </div>
+      <div className="rounded-xl border border-green-100 bg-white p-5 shadow-sm">
+        <p className="text-sm font-medium text-gray-500">Disponibles</p>
+        <p className="mt-2 text-3xl font-bold text-green-600">{disponibles}</p>
+      </div>
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <p className="text-sm font-medium text-gray-500">Vendidos</p>
+        <p className="mt-2 text-3xl font-bold text-gray-900">{vendidos}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-gray-900">Inicio</h1>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Total Productos</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">
-            {totalProductos}
-          </p>
-        </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Disponibles</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">—</p>
-        </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Vendidos</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">—</p>
-        </div>
-      </div>
+      <Suspense fallback={<StatsSkeleton />}>
+        <StatsCards />
+      </Suspense>
     </div>
   );
 }

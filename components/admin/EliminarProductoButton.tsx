@@ -8,9 +8,13 @@ import { Trash2 } from "lucide-react";
 
 interface EliminarProductoButtonProps {
   id: number;
+  variant?: "default" | "icon";
 }
 
-export function EliminarProductoButton({ id }: EliminarProductoButtonProps) {
+export function EliminarProductoButton({
+  id,
+  variant = "default",
+}: EliminarProductoButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   // useOptimistic: muestra "Eliminando..." de manera instantánea (Fase 5.4)
@@ -39,6 +43,19 @@ export function EliminarProductoButton({ id }: EliminarProductoButtonProps) {
       }
     });
   };
+
+  if (variant === "icon") {
+    return (
+      <button
+        onClick={handleDelete}
+        disabled={isPending}
+        title="Eliminar"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60 transition"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+    );
+  }
 
   return (
     <button
