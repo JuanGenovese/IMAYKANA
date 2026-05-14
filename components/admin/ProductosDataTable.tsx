@@ -12,7 +12,9 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { Product } from "@/lib/db/schema";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { Pencil, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
+import { EliminarProductoButton } from "./EliminarProductoButton";
 
 const statusLabel: Record<string, string> = {
   AVAILABLE: "Disponible",
@@ -28,13 +30,47 @@ const statusColors: Record<string, string> = {
 
 const columns: ColumnDef<Product>[] = [
   {
+    id: "thumbnail",
+    header: "",
+    cell: ({ row }) => {
+      const photo = row.original.photoUrls?.[0];
+      return (
+        <div className="relative h-10 w-10 overflow-hidden rounded-md border border-gray-100 bg-gray-50">
+          {photo ? (
+            <Image
+              src={photo}
+              alt={row.original.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-gray-300">
+              <ImageIcon className="h-5 w-5" />
+            </div>
+          )}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "name",
     header: "Nombre",
     cell: ({ row }) => (
-      <span className="font-medium text-gray-900">{row.original.name}</span>
+      <div className="flex flex-col">
+        <span className="font-medium text-gray-900">{row.original.name}</span>
+        <span className="text-xs text-gray-500 lg:hidden">
+          {row.original.category}
+        </span>
+      </div>
     ),
   },
-  { accessorKey: "category", header: "Categoría" },
+  {
+    accessorKey: "category",
+    header: "Categoría",
+    cell: ({ row }) => (
+      <span className="hidden lg:inline">{row.original.category}</span>
+    ),
+  },
   { accessorKey: "size", header: "Talle" },
   { accessorKey: "color", header: "Color" },
   {
@@ -55,13 +91,16 @@ const columns: ColumnDef<Product>[] = [
     id: "actions",
     header: "",
     cell: ({ row }) => (
-      <Link
-        href={`/dashboard/productos/${row.original.id}`}
-        className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1 text-xs text-gray-600 hover:bg-gray-50 transition"
-      >
-        <Pencil className="h-3 w-3" />
-        Editar
-      </Link>
+      <div className="flex items-center justify-end gap-2">
+        <Link
+          href={`/dashboard/productos/${row.original.id}`}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+          title="Editar"
+        >
+          <Pencil className="h-4 w-4" />
+        </Link>
+        <EliminarProductoButton id={row.original.id} variant="icon" />
+      </div>
     ),
   },
 ];

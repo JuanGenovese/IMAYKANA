@@ -5,7 +5,7 @@ import { products } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const productoSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -19,8 +19,9 @@ const productoSchema = z.object({
 });
 
 async function verifyAdmin() {
-  const session = await auth();
-  if (!session) throw new Error("Sin autorización");
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Sin autorización");
 }
 
 export async function crearProducto(data: unknown) {
