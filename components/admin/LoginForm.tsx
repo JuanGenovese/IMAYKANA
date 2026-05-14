@@ -4,9 +4,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createSupabaseClient } from "@/lib/supabase/client";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -30,21 +30,23 @@ export function LoginForm() {
   const onSubmit = async (data: LoginValues) => {
     setIsLoading(true);
     try {
-      const result = await signIn("credentials", {
+      const supabase = createSupabaseClient();
+      const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
-        redirect: false,
       });
 
-      if (result?.error) {
-        toast.error("Credenciales incorrectas. Intentá de nuevo.");
+      if (error) {
+        toast.error("Credenciales incorrectas o error de acceso.");
+        console.error(error);
       } else {
         toast.success("Acceso concedido");
         router.push("/dashboard");
         router.refresh();
       }
-    } catch {
+    } catch (err) {
       toast.error("Error inesperado. Intentá de nuevo.");
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

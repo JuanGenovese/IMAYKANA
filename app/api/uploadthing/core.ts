@@ -1,5 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { auth } from "@/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const f = createUploadthing();
 
@@ -8,9 +8,10 @@ export const ourFileRouter = {
     image: { maxFileSize: "4MB", maxFileCount: 5 },
   })
     .middleware(async () => {
-      const session = await auth();
-      if (!session) throw new Error("Sin autorización");
-      return { adminId: session.user?.email };
+      const supabase = await createSupabaseServerClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Sin autorización");
+      return { adminId: user.email };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       console.log(

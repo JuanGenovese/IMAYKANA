@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LayoutDashboard, Package } from "lucide-react";
@@ -14,8 +14,10 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-  if (!session) redirect("/login");
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -43,7 +45,7 @@ export default async function AdminLayout({
         </nav>
         <div className="border-t border-gray-100 p-3">
           <p className="truncate px-3 py-2 text-xs text-gray-400">
-            {session.user?.name ?? session.user?.email}
+            {user.email}
           </p>
         </div>
       </aside>
@@ -57,13 +59,14 @@ export default async function AdminLayout({
           </span>
           <div className="ml-auto flex items-center gap-3">
             <span className="hidden text-sm text-gray-500 sm:block">
-              {session.user?.email}
+              {user.email}
             </span>
             <form
               action={async () => {
                 "use server";
-                const { signOut } = await import("@/auth");
-                await signOut({ redirectTo: "/login" });
+                const supabase = await createSupabaseServerClient();
+                await supabase.auth.signOut();
+                redirect("/login");
               }}
             >
               <button
