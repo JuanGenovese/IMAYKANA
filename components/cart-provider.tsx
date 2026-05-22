@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
-import type { CartState } from "@/app/carrito/Types";
-import type { CartContextValue } from "@/app/carrito/Types";
+import type { CartState } from "@/app/(store)/carrito/Types";
+import type { CartContextValue } from "@/app/(store)/carrito/Types";
 
 const CART_STORAGE_KEY = "imaykana_cart_v1";
 

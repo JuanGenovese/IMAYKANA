@@ -1,13 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { LayoutDashboard, Package } from "lucide-react";
 import { Toaster } from "sonner";
-
-const navItems = [
-  { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
-  { href: "/dashboard/productos", label: "Productos", icon: Package },
-];
+import { AdminNav } from "@/components/admin/AdminNav";
 
 export default async function AdminLayout({
   children,
@@ -20,45 +14,19 @@ export default async function AdminLayout({
   if (!user) redirect("/login");
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="hidden w-56 flex-shrink-0 flex-col border-r border-gray-200 bg-white lg:flex">
-        <div className="flex h-16 items-center px-5 border-b border-gray-100">
-          <span className="text-base font-bold tracking-tight text-gray-900">
-            IMAYKANA
-          </span>
-          <span className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">
-            Admin
-          </span>
-        </div>
-        <nav className="flex flex-1 flex-col gap-1 p-3 pt-4">
-          {navItems.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <div className="border-t border-gray-100 p-3">
-          <p className="truncate px-3 py-2 text-xs text-gray-400">
-            {user.email}
-          </p>
-        </div>
-      </aside>
+    <div className="flex min-h-screen flex-col lg:flex-row bg-gray-50">
+      {/* Responsive Navigation Component */}
+      <AdminNav userEmail={user.email} />
 
-      {/* Main */}
-      <div className="flex flex-1 flex-col">
-        {/* Header */}
-        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
-          <span className="text-sm font-medium text-gray-700 lg:hidden">
-            IMAYKANA Admin
+      {/* Main Content Area */}
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* Desktop Header */}
+        <header className="hidden h-16 items-center justify-between border-b border-gray-200 bg-white px-6 lg:flex">
+          <span className="text-sm font-semibold text-gray-700">
+            Panel de Administración
           </span>
           <div className="ml-auto flex items-center gap-3">
-            <span className="hidden text-sm text-gray-500 sm:block">
+            <span className="text-sm text-gray-500">
               {user.email}
             </span>
             <form
@@ -71,7 +39,7 @@ export default async function AdminLayout({
             >
               <button
                 type="submit"
-                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 transition"
+                className="rounded-lg border border-gray-200 px-3.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition"
               >
                 Salir
               </button>
@@ -79,8 +47,8 @@ export default async function AdminLayout({
           </div>
         </header>
 
-        {/* Content */}
-        <main className="flex-1 p-6">{children}</main>
+        {/* Content Body */}
+        <main className="flex-1 p-4 md:p-6 min-w-0 overflow-y-auto">{children}</main>
       </div>
 
       <Toaster richColors closeButton />

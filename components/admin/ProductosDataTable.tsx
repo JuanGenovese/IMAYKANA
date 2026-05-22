@@ -167,7 +167,7 @@ export function ProductosDataTable({
           placeholder="Buscar producto..."
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className="w-full max-w-xs rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 sm:max-w-sm"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 sm:max-w-sm"
         />
         <Link
           href="/dashboard/productos/nuevo"
@@ -177,8 +177,8 @@ export function ProductosDataTable({
         </Link>
       </div>
 
-      {/* Tabla */}
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+      {/* Vista de escritorio: Tabla */}
+      <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
             {table.getHeaderGroups().map((hg) => (
@@ -226,6 +226,84 @@ export function ProductosDataTable({
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Vista móvil: Cards */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {table.getRowModel().rows.length === 0 ? (
+          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-gray-400 shadow-sm">
+            No se encontraron productos.
+          </div>
+        ) : (
+          table.getRowModel().rows.map((row) => {
+            const p = row.original;
+            const photo = p.imagenes?.[0]?.url;
+            const s = p.estado?.estado ?? "AVAILABLE";
+            return (
+              <div
+                key={row.id}
+                className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm hover:border-gray-200 transition"
+              >
+                {/* Thumbnail */}
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
+                  {photo ? (
+                    <Image
+                      src={photo}
+                      alt={p.nombre}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-gray-300">
+                      <ImageIcon className="h-6 w-6" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Details */}
+                <div className="flex flex-1 flex-col min-w-0">
+                  <div className="flex items-start justify-between gap-1">
+                    <span className="font-semibold text-gray-900 truncate text-sm">
+                      {p.nombre}
+                    </span>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium shrink-0 ${statusColors[s] ?? "bg-gray-100 text-gray-600"}`}
+                    >
+                      {statusLabel[s] ?? s}
+                    </span>
+                  </div>
+                  
+                  <span className="text-xs text-gray-500 mt-0.5">
+                    {p.talleXCategoria?.categoria?.categoria || "Sin categoría"}
+                  </span>
+
+                  <div className="flex items-center gap-2 mt-2 text-xs text-gray-600 font-medium">
+                    <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">
+                      Talle: {p.talleXCategoria?.talle?.talle || "-"}
+                    </span>
+                    {p.color && (
+                      <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100 truncate max-w-[120px]">
+                        Color: {p.color}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-2 shrink-0 self-stretch justify-center pl-3 border-l border-gray-100">
+                  <Link
+                    href={`/dashboard/productos/${p.id}`}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                    title="Editar"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Link>
+                  <EliminarProductoButton id={p.id} variant="icon" />
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Paginación */}
