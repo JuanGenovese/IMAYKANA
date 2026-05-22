@@ -4,6 +4,8 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ProductoForm } from "@/components/admin/ProductoForm";
 import { EliminarProductoButton } from "@/components/admin/EliminarProductoButton";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 interface EditarProductoPageProps {
   params: Promise<{ id: string }>;
@@ -30,13 +32,24 @@ export default async function EditarProductoPage({
   if (!producto) notFound();
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Editar Producto</h1>
-        <EliminarProductoButton id={producto.id} />
+    <div className="flex flex-col gap-4">
+      <div>
+        <Link
+          href="/dashboard/productos"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Volver a productos
+        </Link>
       </div>
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm max-w-3xl">
-        <ProductoForm producto={producto as ProductoConRelaciones} />
+      <div>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">Editar Producto</h1>
+          <EliminarProductoButton id={producto.id} />
+        </div>
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm max-w-3xl">
+          <ProductoForm producto={producto as ProductoConRelaciones} />
+        </div>
       </div>
     </div>
   );

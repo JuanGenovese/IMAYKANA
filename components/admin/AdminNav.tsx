@@ -34,12 +34,14 @@ export function AdminNav({ userEmail }: AdminNavProps) {
       {/* Desktop Sidebar (visible on lg screens, hidden on mobile) */}
       <aside className="hidden w-64 flex-shrink-0 flex-col border-r border-gray-200 bg-white lg:flex">
         <div className="flex h-16 items-center px-6 border-b border-gray-100">
-          <span className="text-lg font-bold tracking-tight text-gray-900">
-            IMAYKANA
-          </span>
-          <span className="ml-2 rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
-            Admin
-          </span>
+          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <span className="text-lg font-bold tracking-tight text-gray-900">
+              IMAYKANA
+            </span>
+            <span className="ml-2 rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
+              Admin
+            </span>
+          </Link>
         </div>
         <nav className="flex flex-1 flex-col gap-1.5 p-4 pt-5">
           {navItems.map(({ href, label, icon: Icon }) => {
@@ -78,9 +80,9 @@ export function AdminNav({ userEmail }: AdminNavProps) {
           >
             <Menu className="h-6 w-6" />
           </button>
-          <span className="text-sm font-bold text-gray-900 tracking-tight">
+          <Link href="/" className="text-sm font-bold text-gray-900 tracking-tight hover:opacity-80 transition-opacity">
             IMAYKANA Admin
-          </span>
+          </Link>
           <button
             type="button"
             onClick={handleLogout}
@@ -108,12 +110,14 @@ export function AdminNav({ userEmail }: AdminNavProps) {
           <div>
             <div className="flex h-16 items-center justify-between px-5 border-b border-gray-100">
               <div className="flex items-center">
-                <span className="text-base font-bold tracking-tight text-gray-900">
-                  IMAYKANA
-                </span>
-                <span className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600">
-                  Admin
-                </span>
+                <Link href="/" className="flex items-center hover:opacity-80 transition-opacity" onClick={toggleMenu}>
+                  <span className="text-base font-bold tracking-tight text-gray-900">
+                    IMAYKANA
+                  </span>
+                  <span className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600">
+                    Admin
+                  </span>
+                </Link>
               </div>
               <button
                 type="button"
