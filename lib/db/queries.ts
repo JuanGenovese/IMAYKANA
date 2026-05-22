@@ -1,36 +1,78 @@
 import { eq } from "drizzle-orm";
 import { db } from "./index";
-import { products } from "./schema";
+import { productos, estados, type ProductoConRelaciones } from "./schema";
 
 /**
  * Obtiene todos los productos disponibles (catálogo).
  */
-export async function getAvailableProducts() {
-  return await db.query.products.findMany({
-    where: eq(products.status, "AVAILABLE"),
-    orderBy: (products, { desc }) => [desc(products.id)],
-  });
+export async function getAvailableProducts(): Promise<ProductoConRelaciones[]> {
+  return (await db.query.productos.findMany({
+    where: (productos, { eq }) => eq(
+      productos.idEstado,
+      db
+        .select({ id: estados.id })
+        .from(estados)
+        .where(eq(estados.estado, "AVAILABLE"))
+    ),
+    orderBy: (productos, { desc }) => [desc(productos.id)],
+    with: {
+      imagenes: true,
+      talleXCategoria: {
+        with: {
+          talle: true,
+          categoria: true,
+        },
+      },
+      estado: true,
+    },
+  })) as ProductoConRelaciones[];
 }
 
 /**
  * Obtiene los últimos productos disponibles para destacar (Hero/Carousel).
  */
-export async function getFeaturedProducts(limit: number = 5) {
-  return await db.query.products.findMany({
-    where: eq(products.status, "AVAILABLE"),
-    orderBy: (products, { desc }) => [desc(products.id)],
+export async function getFeaturedProducts(limit: number = 5): Promise<ProductoConRelaciones[]> {
+  return (await db.query.productos.findMany({
+    where: (productos, { eq }) => eq(
+      productos.idEstado,
+      db
+        .select({ id: estados.id })
+        .from(estados)
+        .where(eq(estados.estado, "AVAILABLE"))
+    ),
+    orderBy: (productos, { desc }) => [desc(productos.id)],
     limit,
-  });
+    with: {
+      imagenes: true,
+      talleXCategoria: {
+        with: {
+          talle: true,
+          categoria: true,
+        },
+      },
+      estado: true,
+    },
+  })) as ProductoConRelaciones[];
 }
 
 /**
- * Obtiene un producto por su ID (reemplazando al slug que no existe en el backend actual).
+ * Obtiene un producto por su ID.
  */
-export async function getProductById(id: number) {
-  const result = await db.query.products.findFirst({
-    where: eq(products.id, id),
+export async function getProductById(id: number): Promise<ProductoConRelaciones | null> {
+  const result = await db.query.productos.findFirst({
+    where: eq(productos.id, id),
+    with: {
+      imagenes: true,
+      talleXCategoria: {
+        with: {
+          talle: true,
+          categoria: true,
+        },
+      },
+      estado: true,
+    },
   });
-  return result ?? null;
+  return (result as ProductoConRelaciones) ?? null;
 }
 
 // Helper de formateo (mantenido del original)

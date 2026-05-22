@@ -1,16 +1,17 @@
 import { db } from "@/lib/db";
-import { products } from "@/lib/db/schema";
+import { productos, estados } from "@/lib/db/schema";
 import { sql, eq } from "drizzle-orm";
 import { Suspense } from "react";
 
 async function getStats() {
   const result = await db
     .select({
-      total: sql<number>`count(*)`,
-      disponibles: sql<number>`count(*) filter (where ${products.status} = 'AVAILABLE')`,
-      vendidos: sql<number>`count(*) filter (where ${products.status} = 'SOLD')`,
+      total: sql<number>`count(${productos.id})`,
+      disponibles: sql<number>`count(${productos.id}) filter (where ${estados.estado} = 'AVAILABLE')`,
+      vendidos: sql<number>`count(${productos.id}) filter (where ${estados.estado} = 'SOLD')`,
     })
-    .from(products);
+    .from(productos)
+    .leftJoin(estados, eq(productos.idEstado, estados.id));
 
   const stats = result[0] || { total: 0, disponibles: 0, vendidos: 0 };
 

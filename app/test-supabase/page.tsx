@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createSupabaseClient } from '@/lib/supabase/client';
 
 export default function TestSupabase() {
-  const [data, setData] = useState<any[] | null>(null);
+  const [data, setData] = useState<unknown[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -13,7 +13,7 @@ export default function TestSupabase() {
       const supabase = createSupabaseClient();
       
       const { data, error } = await supabase
-        .from('products')
+        .from('productos')
         .select('*')
         .limit(5);
 

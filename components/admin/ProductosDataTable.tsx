@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-table";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import type { Product } from "@/lib/db/schema";
+import type { ProductoConRelaciones } from "@/lib/db/schema";
 import Link from "next/link";
 import { Pencil, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
@@ -28,18 +28,18 @@ const statusColors: Record<string, string> = {
   SOLD: "bg-gray-100 text-gray-500",
 };
 
-const columns: ColumnDef<Product>[] = [
+const columns: ColumnDef<ProductoConRelaciones>[] = [
   {
     id: "thumbnail",
     header: "",
     cell: ({ row }) => {
-      const photo = row.original.photoUrls?.[0];
+      const photo = row.original.imagenes?.[0]?.url;
       return (
         <div className="relative h-10 w-10 overflow-hidden rounded-md border border-gray-100 bg-gray-50">
           {photo ? (
             <Image
               src={photo}
-              alt={row.original.name}
+              alt={row.original.nombre}
               fill
               className="object-cover"
             />
@@ -53,31 +53,39 @@ const columns: ColumnDef<Product>[] = [
     },
   },
   {
-    accessorKey: "name",
+    accessorKey: "nombre",
     header: "Nombre",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="font-medium text-gray-900">{row.original.name}</span>
+        <span className="font-medium text-gray-900">{row.original.nombre}</span>
         <span className="text-xs text-gray-500 lg:hidden">
-          {row.original.category}
+          {row.original.talleXCategoria?.categoria?.categoria}
         </span>
       </div>
     ),
   },
   {
-    accessorKey: "category",
+    accessorKey: "talleXCategoria.categoria.categoria",
     header: "Categoría",
     cell: ({ row }) => (
-      <span className="hidden lg:inline">{row.original.category}</span>
+      <span className="hidden lg:inline">
+        {row.original.talleXCategoria?.categoria?.categoria}
+      </span>
     ),
   },
-  { accessorKey: "size", header: "Talle" },
+  {
+    accessorKey: "talleXCategoria.talle.talle",
+    header: "Talle",
+    cell: ({ row }) => (
+      <span>{row.original.talleXCategoria?.talle?.talle}</span>
+    ),
+  },
   { accessorKey: "color", header: "Color" },
   {
-    accessorKey: "status",
+    accessorKey: "estado.estado",
     header: "Estado",
     cell: ({ row }) => {
-      const s = row.original.status;
+      const s = row.original.estado?.estado ?? "AVAILABLE";
       return (
         <span
           className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[s] ?? "bg-gray-100 text-gray-600"}`}
@@ -106,7 +114,7 @@ const columns: ColumnDef<Product>[] = [
 ];
 
 interface ProductosDataTableProps {
-  data: Product[];
+  data: ProductoConRelaciones[];
   initialSearch?: string;
 }
 

@@ -63,7 +63,8 @@ export default function CartPage() {
           "Hola! Quiero consultar disponibilidad y precio por estas prendas:",
           "",
           ...resolved.map((it) => {
-            return `- ${it.product.name} (Ref: ${it.product.id}) | Talle: ${it.size} | Color: ${it.product.color}`;
+            const talle = it.product.talleXCategoria?.talle?.talle ?? it.size;
+            return `- ${it.product.nombre} (Ref: ${it.product.id}) | Talle: ${talle} | Color: ${it.product.color}`;
           }),
           "",
           "¿Me confirmás disponibilidad y retiro?",
@@ -124,39 +125,43 @@ export default function CartPage() {
               </CardContent>
             </Card>
           ) : (
-            resolved.map((it) => (
-              <Card key={`${it.productId}:${it.size}`} className="rounded-3xl">
-                <CardContent className="grid gap-4 px-5 py-5 sm:grid-cols-[96px_1fr]">
-                  <div className="relative aspect-[4/5] w-24 overflow-hidden rounded-2xl border bg-card">
-                    {it.product.photoUrls && it.product.photoUrls.length > 0 ? (
-                      <Image
-                        src={it.product.photoUrls[0]}
-                        alt={it.product.name}
-                        fill
-                        className="object-cover"
-                        sizes="96px"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                        ---
-                      </div>
-                    )}
-                  </div>
+            resolved.map((it) => {
+              const photo = it.product.imagenes?.[0]?.url;
+              const category = it.product.talleXCategoria?.categoria?.categoria ?? "";
+              const talle = it.product.talleXCategoria?.talle?.talle ?? it.size;
+              return (
+                <Card key={`${it.productId}:${it.size}`} className="rounded-3xl">
+                  <CardContent className="grid gap-4 px-5 py-5 sm:grid-cols-[96px_1fr]">
+                    <div className="relative aspect-[4/5] w-24 overflow-hidden rounded-2xl border bg-card">
+                      {photo ? (
+                        <Image
+                          src={photo}
+                          alt={it.product.nombre}
+                          fill
+                          className="object-cover"
+                          sizes="96px"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                          ---
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="text-sm text-muted-foreground">
-                          {it.product.category}
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="text-sm text-muted-foreground">
+                            {category}
+                          </div>
+                          <div className="text-base font-semibold tracking-tight">
+                            {it.product.nombre}
+                          </div>
+                          <div className="mt-1 text-sm text-muted-foreground">
+                            Talle:{" "}
+                            <span className="text-foreground">{talle}</span>
+                          </div>
                         </div>
-                        <div className="text-base font-semibold tracking-tight">
-                          {it.product.name}
-                        </div>
-                        <div className="mt-1 text-sm text-muted-foreground">
-                          Talle:{" "}
-                          <span className="text-foreground">{it.size}</span>
-                        </div>
-                      </div>
 
                       <Button
                         type="button"
@@ -205,7 +210,8 @@ export default function CartPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))
+            );
+          })
           )}
         </div>
 

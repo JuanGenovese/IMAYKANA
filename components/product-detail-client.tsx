@@ -9,21 +9,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
-import type { Product } from "@/lib/db/schema";
+import type { ProductoConRelaciones } from "@/lib/db/schema";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
-export function ProductDetailClient({ product }: { product: Product }) {
+export function ProductDetailClient({ product }: { product: ProductoConRelaciones }) {
   const { addItem } = useCart();
 
   const [activeImage, setActiveImage] = React.useState(0);
   const [justAdded, setJustAdded] = React.useState(false);
 
+  const talle = product.talleXCategoria?.talle?.talle ?? "";
+  const categoria = product.talleXCategoria?.categoria?.categoria ?? "";
+  const photoUrls = product.imagenes?.map((img) => img.url) ?? [];
+
   const buyMessage = [
     "Hola! Quiero consultar por esta prenda:",
-    `- ${product.name} (Ref: ${product.id})`,
-    `- Talle: ${product.size}`,
+    `- ${product.nombre} (Ref: ${product.id})`,
+    `- Talle: ${talle}`,
     `- Color: ${product.color}`,
     "",
     "¿Me confirmás disponibilidad y precio?",
@@ -35,7 +39,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
     // Al no haber múltiples talles, usamos directamente el de la prenda
     addItem({
       productId: product.id.toString(),
-      size: product.size,
+      size: talle,
       quantity: 1,
       price: 0,
     });
@@ -48,10 +52,10 @@ export function ProductDetailClient({ product }: { product: Product }) {
       <div className="space-y-3 sm:space-y-4">
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border bg-card">
           <div className="relative aspect-[4/5] w-full">
-            {product.photoUrls && product.photoUrls.length > 0 ? (
+            {photoUrls && photoUrls.length > 0 ? (
               <Image
-                src={product.photoUrls[activeImage]}
-                alt={product.name}
+                src={photoUrls[activeImage]}
+                alt={product.nombre}
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -66,9 +70,9 @@ export function ProductDetailClient({ product }: { product: Product }) {
           </div>
         </div>
 
-        {product.photoUrls && product.photoUrls.length > 1 && (
+        {photoUrls && photoUrls.length > 1 && (
           <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {product.photoUrls.map((src, idx) => (
+            {photoUrls.map((src, idx) => (
               <button
                 key={src}
                 type="button"
@@ -81,7 +85,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
               >
                 <Image
                   src={src}
-                  alt={`${product.name} foto ${idx + 1}`}
+                  alt={`${product.nombre} foto ${idx + 1}`}
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 64px, 80px"
@@ -96,14 +100,14 @@ export function ProductDetailClient({ product }: { product: Product }) {
         <div className="space-y-2 sm:space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="text-xs sm:text-sm">
-              {product.category}
+              {categoria}
             </Badge>
           </div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
-            {product.name}
+            {product.nombre}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            {product.descriptionSummary}
+            {product.descripcion}
           </p>
           <div className="text-xl sm:text-2xl font-semibold text-muted-foreground">
             Consultar precio
@@ -117,7 +121,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
             <div className="text-xs sm:text-sm font-semibold text-muted-foreground">
               Talle
             </div>
-            <div className="text-base font-medium">{product.size}</div>
+            <div className="text-base font-medium">{talle}</div>
           </div>
           <div className="space-y-1">
             <div className="text-xs sm:text-sm font-semibold text-muted-foreground">
@@ -127,12 +131,12 @@ export function ProductDetailClient({ product }: { product: Product }) {
           </div>
         </div>
 
-        {product.specificMeasurements && (
+        {product.medidasEspecificas && (
           <div className="space-y-1">
             <div className="text-xs sm:text-sm font-semibold text-muted-foreground">
               Medidas específicas
             </div>
-            <div className="text-sm">{product.specificMeasurements}</div>
+            <div className="text-sm">{product.medidasEspecificas}</div>
           </div>
         )}
 
