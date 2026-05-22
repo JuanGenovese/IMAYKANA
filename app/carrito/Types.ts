@@ -1,4 +1,4 @@
-import type { Product } from "@/lib/db/schema";
+import type { ProductoConRelaciones as Product } from "@/lib/db/schema";
 
 export type ResolvedCartItem = {
   productId: string;

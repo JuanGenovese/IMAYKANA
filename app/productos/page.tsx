@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getAvailableProducts, formatARS } from "@/lib/db/queries";
+import { getAvailableProducts } from "@/lib/db/queries";
 
 export const metadata = {
   title: "Productos — IMAYKANA",
@@ -41,44 +41,48 @@ export default async function ProductsPage() {
       </div>
 
       <div className="mt-6 sm:mt-8 grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((p) => (
-          <Link key={p.id} href={`/producto/${p.id}`} className="group">
-            <Card className="overflow-hidden rounded-3xl transition-transform group-hover:-translate-y-0.5">
-              <div className="relative aspect-[4/5] w-full">
-                {p.photoUrls && p.photoUrls.length > 0 ? (
-                  <Image
-                    src={p.photoUrls[0]}
-                    alt={p.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-muted">
-                    <span className="text-muted-foreground">Sin imagen</span>
+        {products.map((p) => {
+          const photo = p.imagenes?.[0]?.url;
+          const category = p.talleXCategoria?.categoria?.categoria ?? "";
+          return (
+            <Link key={p.id} href={`/producto/${p.id}`} className="group">
+              <Card className="overflow-hidden rounded-3xl transition-transform group-hover:-translate-y-0.5">
+                <div className="relative aspect-[4/5] w-full">
+                  {photo ? (
+                    <Image
+                      src={photo}
+                      alt={p.nombre}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-muted">
+                      <span className="text-muted-foreground">Sin imagen</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+                </div>
+                <CardContent className="space-y-2 px-5 pt-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      {category}
+                    </span>
+                    <span className="text-sm font-semibold text-muted-foreground">
+                      Consultar precio
+                    </span>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
-              </div>
-              <CardContent className="space-y-2 px-5 pt-4">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {p.category}
-                  </span>
-                  <span className="text-sm font-semibold text-muted-foreground">
-                    Consultar precio
-                  </span>
-                </div>
-                <div className="text-base font-semibold tracking-tight">
-                  {p.name}
-                </div>
-                <div className="line-clamp-2 text-sm text-muted-foreground">
-                  {p.descriptionSummary}
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+                  <div className="text-base font-semibold tracking-tight">
+                    {p.nombre}
+                  </div>
+                  <div className="line-clamp-2 text-sm text-muted-foreground">
+                    {p.descripcion}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </main>
   );

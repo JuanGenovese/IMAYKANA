@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { products } from "@/lib/db/schema";
+import { productos, type ProductoConRelaciones } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ProductoForm } from "@/components/admin/ProductoForm";
@@ -13,11 +13,19 @@ export default async function EditarProductoPage({
   params,
 }: EditarProductoPageProps) {
   const { id } = await params;
-  const [producto] = await db
-    .select()
-    .from(products)
-    .where(eq(products.id, Number(id)))
-    .limit(1);
+  const producto = await db.query.productos.findFirst({
+    where: eq(productos.id, Number(id)),
+    with: {
+      imagenes: true,
+      talleXCategoria: {
+        with: {
+          talle: true,
+          categoria: true,
+        },
+      },
+      estado: true,
+    },
+  });
 
   if (!producto) notFound();
 
@@ -28,7 +36,7 @@ export default async function EditarProductoPage({
         <EliminarProductoButton id={producto.id} />
       </div>
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm max-w-3xl">
-        <ProductoForm producto={producto} />
+        <ProductoForm producto={producto as ProductoConRelaciones} />
       </div>
     </div>
   );

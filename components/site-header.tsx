@@ -1,13 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
+import { useEffect, useState } from "react";
+import { type User } from "@supabase/supabase-js";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
+import { createSupabaseClient } from "@/lib/supabase/client";
 
 export function SiteHeader() {
   const { count } = useCart();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createSupabaseClient();
+    
+    // Obtener sesión actual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Escuchar cambios de estado de autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    const supabase = createSupabaseClient();
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/20 bg-white/80 backdrop-blur-md">
@@ -72,17 +103,42 @@ export function SiteHeader() {
             </Link>
           </Button>
 
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 sm:h-10 sm:w-10"
-            aria-label="Iniciar sesión"
-          >
-            <Link href="/login">
-              <User className="size-4 sm:size-5" />
-            </Link>
-          </Button>
+          {!loading && user ? (
+            <>
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 sm:h-10 sm:w-10 text-primary hover:text-primary/80 transition-colors"
+                aria-label="Ir al Panel"
+              >
+                <Link href="/dashboard">
+                  <LayoutDashboard className="size-4 sm:size-5" />
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="h-9 w-9 sm:h-10 sm:w-10 text-destructive hover:bg-destructive/10 hover:text-destructive transition-all"
+                aria-label="Cerrar sesión"
+              >
+                <LogOut className="size-4 sm:size-5" />
+              </Button>
+            </>
+          ) : (
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 sm:h-10 sm:w-10"
+              aria-label="Iniciar sesión"
+            >
+              <Link href="/login">
+                <UserIcon className="size-4 sm:size-5" />
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>

@@ -6,12 +6,11 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { UploadButton } from "@uploadthing/react";
-import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { crearProducto, actualizarProducto } from "@/actions/admin/productos";
-import type { Product } from "@/lib/db/schema";
+import type { ProductoConRelaciones } from "@/lib/db/schema";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, Upload } from "lucide-react";
+import { createSupabaseClient } from "@/lib/supabase/client";
 
 const productoSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -26,15 +25,60 @@ const productoSchema = z.object({
 type ProductoValues = z.infer<typeof productoSchema>;
 
 interface ProductoFormProps {
-  producto?: Product;
+  producto?: ProductoConRelaciones;
 }
 
 export function ProductoForm({ producto }: ProductoFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [photoUrls, setPhotoUrls] = useState<string[]>(
-    producto?.photoUrls ?? [],
+    producto?.imagenes?.map((img) => img.url) ?? [],
   );
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    setUploading(true);
+    const files = Array.from(e.target.files);
+    const supabase = createSupabaseClient();
+    const newUrls: string[] = [];
+
+    for (const file of files) {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      try {
+        const { data, error } = await supabase.storage
+          .from("imagenes")
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("imagenes")
+          .getPublicUrl(filePath);
+
+        newUrls.push(publicUrl);
+      } catch (err: any) {
+        console.error("Error al subir archivo:", err);
+        toast.error(`Error al subir ${file.name}: ${err.message || err}`);
+      }
+    }
+
+    if (newUrls.length > 0) {
+      setPhotoUrls((prev) => [...prev, ...newUrls]);
+      toast.success(`${newUrls.length} imagen(es) subida(s) con éxito.`);
+    }
+    setUploading(false);
+    e.target.value = "";
+  };
 
   const {
     register,
@@ -43,17 +87,17 @@ export function ProductoForm({ producto }: ProductoFormProps) {
   } = useForm<ProductoValues>({
     resolver: zodResolver(productoSchema),
     defaultValues: {
-      name: producto?.name ?? "",
-      category: producto?.category ?? "",
-      size: producto?.size ?? "",
+      name: producto?.nombre ?? "",
+      category: producto?.talleXCategoria?.categoria?.categoria ?? "",
+      size: producto?.talleXCategoria?.talle?.talle ?? "",
       color: producto?.color ?? "",
-      descriptionSummary: producto?.descriptionSummary ?? "",
-      specificMeasurements: producto?.specificMeasurements ?? "",
-      status: (producto?.status as ProductoValues["status"]) ?? "AVAILABLE",
+      descriptionSummary: producto?.descripcion ?? "",
+      specificMeasurements: producto?.medidasEspecificas ?? "",
+      status: (producto?.estado?.estado as ProductoValues["status"]) ?? "AVAILABLE",
     },
   });
 
-  const isLoading = isSubmitting || isPending;
+  const isLoading = isSubmitting || isPending || uploading;
 
   const onSubmit = (data: ProductoValues) => {
     startTransition(async () => {
@@ -169,17 +213,25 @@ export function ProductoForm({ producto }: ProductoFormProps) {
             ))}
           </div>
         )}
-        <UploadButton<OurFileRouter, "imageUploader">
-          endpoint="imageUploader"
-          onClientUploadComplete={(res) => {
-            const urls = res.map((r) => r.url);
-            setPhotoUrls((prev) => [...prev, ...urls]);
-            toast.success(`${urls.length} imagen(es) subidas`);
-          }}
-          onUploadError={(err) => {
-            toast.error(`Error al subir: ${err.message}`);
-          }}
-        />
+        <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl h-32 px-4 cursor-pointer hover:bg-gray-50 transition-colors border-gray-300">
+          <span className="flex flex-col items-center gap-1">
+            <Upload className={`mx-auto h-8 w-8 text-gray-400 ${uploading ? "animate-bounce text-gray-900" : ""}`} />
+            <span className="text-sm font-medium text-gray-600">
+              {uploading ? "Subiendo..." : "Subir imágenes"}
+            </span>
+            <span className="text-xs text-gray-400">
+              Soporta múltiples archivos PNG, JPG, WEBP
+            </span>
+          </span>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+            disabled={isLoading}
+          />
+        </label>
       </div>
 
       {/* Botones */}

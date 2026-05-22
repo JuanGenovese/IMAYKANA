@@ -29,23 +29,29 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresca el token si es necesario
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const pathname = request.nextUrl.pathname;
+  const isDashboard = pathname.startsWith("/dashboard");
+  const isLogin = pathname === "/login";
 
-  // Protección de rutas: /dashboard requiere login
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
+  // Solo hacemos la verificación de sesión en rutas protegidas o en el login
+  if (isDashboard || isLogin) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  // Si está logueado y va al login, mandarlo al dashboard
-  if (user && request.nextUrl.pathname === "/login") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    // Protección de rutas: /dashboard requiere login
+    if (!user && isDashboard) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+
+    // Si está logueado y va al login, mandarlo al dashboard
+    if (user && isLogin) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

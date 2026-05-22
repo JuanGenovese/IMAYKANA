@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { products } from "@/lib/db/schema";
+import { type ProductoConRelaciones } from "@/lib/db/schema";
 import { Suspense } from "react";
 import { ProductosDataTable } from "@/components/admin/ProductosDataTable";
 
@@ -24,10 +24,7 @@ function ProductosSkeleton() {
   );
 }
 
-async function ProductosTable({ search }: { search?: string }) {
-  const data = await db.select().from(products);
-  return <ProductosDataTable data={data} initialSearch={search} />;
-}
+
 
 export default function ProductosPage({
   searchParams,
@@ -53,6 +50,18 @@ async function ProductosTableWithSearch({
   searchPromise: Promise<string | undefined> | undefined;
 }) {
   const search = (await searchPromise) ?? "";
-  const data = await db.select().from(products);
+  const data = (await db.query.productos.findMany({
+    orderBy: (p, { desc }) => [desc(p.id)],
+    with: {
+      imagenes: true,
+      talleXCategoria: {
+        with: {
+          talle: true,
+          categoria: true,
+        },
+      },
+      estado: true,
+    },
+  })) as ProductoConRelaciones[];
   return <ProductosDataTable data={data} initialSearch={search} />;
 }

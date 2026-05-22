@@ -20,11 +20,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Producto no encontrado" };
   }
 
+  const images = product.imagenes?.map((img) => img.url) ?? [];
+
   return {
-    title: `${product.name} — IMAYKANA`,
-    description: product.descriptionSummary,
+    title: `${product.nombre} — IMAYKANA`,
+    description: product.descripcion,
     openGraph: {
-      images: product.photoUrls.length > 0 ? [product.photoUrls[0]] : [],
+      images: images.length > 0 ? [images[0]] : [],
     },
   };
 }
@@ -33,7 +35,7 @@ export default async function ProductPage({ params }: Props) {
   const { id } = await params;
   const product = await getProductById(Number(id));
 
-  if (!product || product.status !== "AVAILABLE") {
+  if (!product || product.estado?.estado !== "AVAILABLE") {
     notFound();
   }
 
