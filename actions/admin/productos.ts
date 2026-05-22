@@ -24,7 +24,11 @@ async function verifyAdmin() {
   if (!user) throw new Error("Sin autorización");
 }
 
-async function getOrCreateTalleXCategoria(tx: any, categoryName: string, sizeName: string): Promise<number> {
+async function getOrCreateTalleXCategoria(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  categoryName: string,
+  sizeName: string,
+): Promise<number> {
   const cleanedCategory = categoryName.trim();
   const cleanedSize = sizeName.trim();
 

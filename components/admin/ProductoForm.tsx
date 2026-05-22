@@ -50,7 +50,7 @@ export function ProductoForm({ producto }: ProductoFormProps) {
       const filePath = `${fileName}`;
 
       try {
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from("imagenes")
           .upload(filePath, file, {
             cacheControl: "3600",
@@ -66,9 +66,10 @@ export function ProductoForm({ producto }: ProductoFormProps) {
           .getPublicUrl(filePath);
 
         newUrls.push(publicUrl);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error al subir archivo:", err);
-        toast.error(`Error al subir ${file.name}: ${err.message || err}`);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        toast.error(`Error al subir ${file.name}: ${errMsg}`);
       }
     }
 
