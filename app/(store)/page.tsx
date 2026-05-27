@@ -64,30 +64,30 @@ export default async function Home() {
       </section>
 
       {/* 2. Featured Products Section - Full Screen */}
-      <section className="flex min-h-fit md:min-h-[calc(100svh-160px)] md:h-[calc(100svh-160px)] w-full items-center justify-center bg-transparent relative py-8 sm:py-12 md:py-0 scroll-mt-28 my-12">
-        {/* Background Decoration */}
-        <div className="absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
-          <div className="h-[40vh] sm:h-[50vh] md:h-[60vh] w-[40vh] sm:w-[50vh] md:w-[60vh] rounded-full bg-primary/5 blur-3xl" />
-        </div>
-
+      <section
+        id="productos"
+        className="mt-[25vh] mb-[25vh] flex min-h-fit md:min-h-[calc(100svh-160px)] md:h-[calc(100svh-160px)] w-full items-center justify-center bg-transparent relative py-8 sm:py-12 md:py-0 scroll-mt-20 md:scroll-mt-28"
+      >
         <div className="w-full max-w-6xl px-4">
-          <div className="rounded-2xl sm:rounded-[2.25rem] border bg-glass p-1">
-            <div className="rounded-xl sm:rounded-[2rem] border bg-card/60 p-4 sm:p-6 md:p-8 backdrop-blur-sm">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
-                <div className="text-xl sm:text-2xl font-semibold tracking-tight">
-                  Selección destacada
-                </div>
-                <Button
-                  asChild
-                  variant="ghost"
-                  className="h-8 sm:h-9 px-3 sm:px-4 text-xs sm:text-sm rounded-full"
-                >
-                  <Link href="/productos" className="gap-2">
-                    Ver todo <ArrowRight className="size-3 sm:size-4" />
-                  </Link>
-                </Button>
-              </div>
-              <ProductCarousel variant="tall" products={featuredProducts} />
+          <div className="h-[70vh] max-h-[70vh] min-h-[350px] flex flex-col rounded-xl sm:rounded-[2rem] border bg-card/60 p-5 sm:p-5 md:p-8 backdrop-blur-sm">
+            <div className="flex-none space-y-2 mb-4">
+              <Badge variant="outline" className="w-fit text-xs sm:text-sm">
+                Destacados
+              </Badge>
+            </div>
+            <div className="flex-1 min-h-0">
+              <ProductCarousel products={featuredProducts} />
+            </div>
+            <div className="flex-none flex justify-center">
+              <Button
+                asChild
+                variant="ghost"
+                className="h-8 sm:h-9 px-3 sm:px-4 text-xs sm:text-sm rounded-full"
+              >
+                <Link href="/productos" className="gap-1">
+                  Ver todo <ArrowRight className="size-3 sm:size-4" />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default async function Home() {
       {/* 3. Brand Section - Full Screen */}
       <section
         id="marca"
-        className="flex min-h-fit md:min-h-[calc(100svh-160px)] md:h-[calc(100svh-160px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-28 my-12"
+        className="my-[40vh] flex min-h-fit md:min-h-[calc(100svh-256px)] md:h-[calc(100svh-256px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-20 md:scroll-mt-40"
       >
         <div className="w-full max-w-6xl px-4">
           <div className="grid gap-6 md:gap-10 lg:grid-cols-2 lg:items-center">
@@ -152,10 +152,9 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 4. How to Buy Section - Full Screen */}
       <section
         id="como-comprar"
-        className="flex min-h-fit md:min-h-[calc(100svh-160px)] md:h-[calc(100svh-160px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-28 my-12"
+        className="my-[40vh] flex min-h-fit md:min-h-[calc(100svh-192px)] md:h-[calc(100svh-192px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-20 md:scroll-mt-32"
       >
         <div className="w-full max-w-6xl px-4">
           <div className="rounded-2xl sm:rounded-3xl border bg-card/80 p-5 sm:p-8 md:p-16 backdrop-blur-md shadow-2xl">
@@ -191,7 +190,9 @@ export default async function Home() {
                     <span className="flex size-6 sm:size-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs sm:text-base font-bold">
                       2
                     </span>
-                    <div className="text-sm sm:text-lg font-semibold">Elegí y guardá</div>
+                    <div className="text-sm sm:text-lg font-semibold">
+                      Elegí y guardá
+                    </div>
                   </div>
                   <p className="mt-2 pl-9 sm:pl-12 text-xs sm:text-sm text-muted-foreground leading-normal">
                     Podés comprar una prenda directa o sumar varias al carrito.

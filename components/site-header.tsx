@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
+import {
+  ShoppingCart,
+  User as UserIcon,
+  LogOut,
+  LayoutDashboard,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { type User } from "@supabase/supabase-js";
 
@@ -16,7 +21,7 @@ export function SiteHeader() {
 
   useEffect(() => {
     const supabase = createSupabaseClient();
-    
+
     // Obtener sesión actual
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -24,7 +29,9 @@ export function SiteHeader() {
     });
 
     // Escuchar cambios de estado de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -64,7 +71,7 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground md:flex">
           <Link
-            href="/productos"
+            href="/#productos"
             className="hover:text-foreground transition-colors"
           >
             Productos
