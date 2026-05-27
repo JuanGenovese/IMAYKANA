@@ -12,7 +12,7 @@ export default async function Home() {
   return (
     <main className="w-full">
       {/* 1. Hero Section - Full Screen */}
-      <section className="relative w-full min-h-[calc(100svh-64px)] h-auto md:h-[calc(100svh-64px)] max-h-[900px] bg-[url('/design/landing-bg.jpg')] bg-cover bg-center bg-no-repeat">
+      <section className="relative w-full min-h-[calc(100svh-64px)] h-auto md:h-[calc(100svh-64px)] max-h-[900px] bg-[url('/design/landing-bg.jpg')] bg-cover bg-center bg-no-repeat mt-16 scroll-mt-16">
         <div
           className="pointer-events-none absolute inset-0 bg-background/10"
           aria-hidden="true"
