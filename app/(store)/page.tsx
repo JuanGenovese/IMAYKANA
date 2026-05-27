@@ -64,7 +64,7 @@ export default async function Home() {
       </section>
 
       {/* 2. Featured Products Section - Full Screen */}
-      <section className="flex min-h-fit md:min-h-[calc(100svh-64px)] md:h-[calc(100svh-64px)] w-full items-center justify-center bg-transparent relative py-8 sm:py-12 md:py-0 scroll-mt-16">
+      <section className="flex min-h-fit md:min-h-[calc(100svh-128px)] md:h-[calc(100svh-128px)] w-full items-center justify-center bg-transparent relative py-8 sm:py-12 md:py-0 scroll-mt-24 my-8">
         {/* Background Decoration */}
         <div className="absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
           <div className="h-[40vh] sm:h-[50vh] md:h-[60vh] w-[40vh] sm:w-[50vh] md:w-[60vh] rounded-full bg-primary/5 blur-3xl" />
@@ -96,7 +96,7 @@ export default async function Home() {
       {/* 3. Brand Section - Full Screen */}
       <section
         id="marca"
-        className="flex min-h-fit md:min-h-[calc(100svh-64px)] md:h-[calc(100svh-64px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-16"
+        className="flex min-h-fit md:min-h-[calc(100svh-128px)] md:h-[calc(100svh-128px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-24 my-8"
       >
         <div className="w-full max-w-6xl px-4">
           <div className="grid gap-6 md:gap-10 lg:grid-cols-2 lg:items-center">
@@ -115,7 +115,7 @@ export default async function Home() {
             </div>
 
             <div className="grid gap-3 sm:gap-4 grid-cols-2">
-              <div className="group rounded-xl sm:rounded-3xl border bg-card p-3 sm:p-5 md:p-6 transition-all hover:-translate-y-1 hover:shadow-md">
+              <div className="group rounded-xl sm:rounded-3xl border bg-card p-3 sm:p-5 md:p-6 shadow-2xl transition-all hover:-translate-y-1">
                 <div className="text-xs sm:text-base font-semibold">
                   Curaduría
                 </div>
@@ -124,13 +124,13 @@ export default async function Home() {
                   combinabilidad.
                 </p>
               </div>
-              <div className="group rounded-xl sm:rounded-3xl border bg-card p-3 sm:p-5 md:p-6 transition-all hover:-translate-y-1 hover:shadow-md">
+              <div className="group rounded-xl sm:rounded-3xl border bg-card p-3 sm:p-5 md:p-6 shadow-2xl transition-all hover:-translate-y-1">
                 <div className="text-xs sm:text-base font-semibold">Estilo</div>
                 <p className="mt-1.5 text-[11px] sm:text-sm text-muted-foreground leading-normal">
                   Floral moderno, minimal romántico y energía editorial.
                 </p>
               </div>
-              <div className="group rounded-xl sm:rounded-3xl border bg-card p-3 sm:p-5 md:p-6 transition-all hover:-translate-y-1 hover:shadow-md">
+              <div className="group rounded-xl sm:rounded-3xl border bg-card p-3 sm:p-5 md:p-6 shadow-2xl transition-all hover:-translate-y-1">
                 <div className="text-xs sm:text-base font-semibold">
                   Atención
                 </div>
@@ -139,7 +139,7 @@ export default async function Home() {
                   por carrito.
                 </p>
               </div>
-              <div className="group rounded-xl sm:rounded-3xl border bg-card p-3 sm:p-5 md:p-6 transition-all hover:-translate-y-1 hover:shadow-md">
+              <div className="group rounded-xl sm:rounded-3xl border bg-card p-3 sm:p-5 md:p-6 shadow-2xl transition-all hover:-translate-y-1">
                 <div className="text-xs sm:text-base font-semibold">
                   Lanzamientos
                 </div>
@@ -155,7 +155,7 @@ export default async function Home() {
       {/* 4. How to Buy Section - Full Screen */}
       <section
         id="como-comprar"
-        className="flex min-h-fit md:min-h-[calc(100svh-64px)] md:h-[calc(100svh-64px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-16"
+        className="flex min-h-fit md:min-h-[calc(100svh-128px)] md:h-[calc(100svh-128px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-24 my-8"
       >
         <div className="w-full max-w-6xl px-4">
           <div className="rounded-2xl sm:rounded-3xl border bg-card/80 p-5 sm:p-8 md:p-16 backdrop-blur-md shadow-2xl">
