@@ -58,13 +58,15 @@ export function ProductCarousel({
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-muted">
-                      <span className="text-muted-foreground text-xs">Sin imagen</span>
+                      <span className="text-muted-foreground text-xs">
+                        Sin imagen
+                      </span>
                     </div>
                   )}
                 </div>
 
                 {/* 2. Gradient Overlay for Readability */}
-                <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/45 to-transparent transition-opacity duration-300 group-hover:opacity-95" />
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/10 to-transparent transition-opacity duration-300 group-hover:opacity-95" />
 
                 {/* 3. Overlay Content */}
                 <CardContent className="absolute bottom-0 left-0 right-0 z-20 p-4 sm:p-5 flex flex-col gap-1 text-white">

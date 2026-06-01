@@ -1,6 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Toaster } from "sonner";
 import { AdminNav } from "@/components/admin/AdminNav";
 
 export default async function AdminLayout({
@@ -9,7 +8,11 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  console.log("user", user);
 
   if (!user) redirect("/login");
 
@@ -26,9 +29,7 @@ export default async function AdminLayout({
             Panel de Administración
           </span>
           <div className="ml-auto flex items-center gap-3">
-            <span className="text-sm text-gray-500">
-              {user.email}
-            </span>
+            <span className="text-sm text-gray-500">{user.email}</span>
             <form
               action={async () => {
                 "use server";
@@ -48,10 +49,10 @@ export default async function AdminLayout({
         </header>
 
         {/* Content Body */}
-        <main className="flex-1 p-4 md:p-6 min-w-0 overflow-y-auto">{children}</main>
+        <main className="flex-1 p-4 md:p-6 min-w-0 overflow-y-auto">
+          {children}
+        </main>
       </div>
-
-      <Toaster richColors closeButton />
     </div>
   );
 }

@@ -3,12 +3,32 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Package, Menu, X, LogOut } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  Package, 
+  Menu, 
+  X, 
+  LogOut,
+  Users,
+  Shield,
+  CreditCard,
+  Tag,
+  Ruler,
+  GitFork,
+  Activity
+} from "lucide-react";
 import { createSupabaseClient } from "@/lib/supabase/client";
 
 const navItems = [
   { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
   { href: "/dashboard/productos", label: "Productos", icon: Package },
+  { href: "/dashboard/roles", label: "Roles", icon: Shield },
+  { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
+  { href: "/dashboard/metodos-pago", label: "Métodos de Pago", icon: CreditCard },
+  { href: "/dashboard/categorias", label: "Categorías", icon: Tag },
+  { href: "/dashboard/talles", label: "Talles", icon: Ruler },
+  { href: "/dashboard/talles-categorias", label: "Talles x Categoría", icon: GitFork },
+  { href: "/dashboard/estados", label: "Estados", icon: Activity },
 ];
 
 interface AdminNavProps {
