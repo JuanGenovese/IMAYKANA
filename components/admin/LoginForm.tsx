@@ -83,7 +83,7 @@ export function LoginForm() {
           toast.success(
             "¡Registro exitoso! Por favor confirmá tu correo para activar la cuenta.",
           );
-          router.push("/");
+          router.push("/productos");
           router.refresh();
           setIsRegister(false);
         }
