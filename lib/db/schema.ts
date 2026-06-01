@@ -1,4 +1,12 @@
-import { pgTable, serial, varchar, integer, uuid, text } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  integer,
+  uuid,
+  text,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // 1. Roles
@@ -14,7 +22,10 @@ export const usuarios = pgTable("usuarios", {
   apellido: varchar("apellido", { length: 100 }).notNull(),
   nDni: varchar("n_dni", { length: 20 }).notNull().unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
-  idRol: integer("id_rol").notNull().references(() => roles.id, { onDelete: "restrict" }),
+  idRol: integer("id_rol")
+    .notNull()
+    .references(() => roles.id, { onDelete: "restrict" }),
+  solicitudVendedor: boolean("solicitud_vendedor").notNull().default(false),
 });
 
 // 3. Categorías
@@ -32,8 +43,12 @@ export const talles = pgTable("talles", {
 // 5. Talles por Categoría
 export const tallesXCategoria = pgTable("talles_x_categoria", {
   id: serial("id").primaryKey(),
-  idTalle: integer("id_talle").notNull().references(() => talles.id, { onDelete: "cascade" }),
-  idCategoria: integer("id_categoria").notNull().references(() => categorias.id, { onDelete: "cascade" }),
+  idTalle: integer("id_talle")
+    .notNull()
+    .references(() => talles.id, { onDelete: "cascade" }),
+  idCategoria: integer("id_categoria")
+    .notNull()
+    .references(() => categorias.id, { onDelete: "cascade" }),
 });
 
 // 6. Métodos de Pago
@@ -51,28 +66,42 @@ export const estados = pgTable("estados", {
 // 8. Transacciones
 export const transacciones = pgTable("transacciones", {
   id: serial("id").primaryKey(),
-  idMetodoPago: integer("id_metodo_pago").notNull().references(() => metodosPago.id, { onDelete: "restrict" }),
-  idUsuario: uuid("id_usuario").notNull().references(() => usuarios.id, { onDelete: "restrict" }),
+  idMetodoPago: integer("id_metodo_pago")
+    .notNull()
+    .references(() => metodosPago.id, { onDelete: "restrict" }),
+  idUsuario: uuid("id_usuario")
+    .notNull()
+    .references(() => usuarios.id, { onDelete: "restrict" }),
 });
 
 // 9. Productos
 export const productos = pgTable("productos", {
   id: serial("id").primaryKey(),
   nombre: varchar("nombre", { length: 200 }).notNull(),
-  idTalleXCategoria: integer("id_talle_x_categoria").notNull().references(() => tallesXCategoria.id, { onDelete: "restrict" }),
+  idTalleXCategoria: integer("id_talle_x_categoria")
+    .notNull()
+    .references(() => tallesXCategoria.id, { onDelete: "restrict" }),
   cantidad: integer("cantidad").notNull().default(1),
-  idTransaccion: integer("id_transaccion").references(() => transacciones.id, { onDelete: "set null" }),
-  idEstado: integer("id_estado").notNull().references(() => estados.id, { onDelete: "restrict" }),
+  idTransaccion: integer("id_transaccion").references(() => transacciones.id, {
+    onDelete: "set null",
+  }),
+  idEstado: integer("id_estado")
+    .notNull()
+    .references(() => estados.id, { onDelete: "restrict" }),
   color: varchar("color", { length: 100 }).notNull(),
   descripcion: text("descripcion").notNull().default(""),
-  medidasEspecificas: varchar("medidas_especificas", { length: 500 }).notNull().default(""),
+  medidasEspecificas: varchar("medidas_especificas", { length: 500 })
+    .notNull()
+    .default(""),
 });
 
 // 10. Imágenes
 export const imagenes = pgTable("imagenes", {
   id: serial("id").primaryKey(),
   url: varchar("url", { length: 500 }).notNull(),
-  idProducto: integer("id_producto").notNull().references(() => productos.id, { onDelete: "cascade" }),
+  idProducto: integer("id_producto")
+    .notNull()
+    .references(() => productos.id, { onDelete: "cascade" }),
 });
 
 // ---- RELACIONES (Drizzle Relational Queries) ----
@@ -97,17 +126,20 @@ export const tallesRelations = relations(talles, ({ many }) => ({
   tallesXCategoria: many(tallesXCategoria),
 }));
 
-export const tallesXCategoriaRelations = relations(tallesXCategoria, ({ one, many }) => ({
-  talle: one(talles, {
-    fields: [tallesXCategoria.idTalle],
-    references: [talles.id],
+export const tallesXCategoriaRelations = relations(
+  tallesXCategoria,
+  ({ one, many }) => ({
+    talle: one(talles, {
+      fields: [tallesXCategoria.idTalle],
+      references: [talles.id],
+    }),
+    categoria: one(categorias, {
+      fields: [tallesXCategoria.idCategoria],
+      references: [categorias.id],
+    }),
+    productos: many(productos),
   }),
-  categoria: one(categorias, {
-    fields: [tallesXCategoria.idCategoria],
-    references: [categorias.id],
-  }),
-  productos: many(productos),
-}));
+);
 
 export const metodosPagoRelations = relations(metodosPago, ({ many }) => ({
   transacciones: many(transacciones),
@@ -117,17 +149,20 @@ export const estadosRelations = relations(estados, ({ many }) => ({
   productos: many(productos),
 }));
 
-export const transaccionesRelations = relations(transacciones, ({ one, many }) => ({
-  metodoPago: one(metodosPago, {
-    fields: [transacciones.idMetodoPago],
-    references: [metodosPago.id],
+export const transaccionesRelations = relations(
+  transacciones,
+  ({ one, many }) => ({
+    metodoPago: one(metodosPago, {
+      fields: [transacciones.idMetodoPago],
+      references: [metodosPago.id],
+    }),
+    usuario: one(usuarios, {
+      fields: [transacciones.idUsuario],
+      references: [usuarios.id],
+    }),
+    productos: many(productos),
   }),
-  usuario: one(usuarios, {
-    fields: [transacciones.idUsuario],
-    references: [usuarios.id],
-  }),
-  productos: many(productos),
-}));
+);
 
 export const productosRelations = relations(productos, ({ one, many }) => ({
   talleXCategoria: one(tallesXCategoria, {
@@ -182,4 +217,3 @@ export type ProductoConRelaciones = Producto & {
   };
   estado: typeof estados.$inferSelect;
 };
-
