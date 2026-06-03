@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createSupabaseClient } from "@/lib/supabase/client";
+import { Eye, EyeOff } from "lucide-react";
 import {
   AuthFormValues,
   loginSchema,
@@ -18,11 +19,13 @@ export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
+  const [verContrasena, setVerContrasena] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
+    getValues,
     formState: { errors },
   } = useForm<AuthFormValues>({
     resolver: zodResolver(isRegister ? registerSchema : loginSchema),
@@ -46,6 +49,37 @@ export function LoginForm() {
       isVendedor: false,
     });
   }, [isRegister, reset]);
+
+  const handleForgotPassword = async () => {
+    const email = getValues("email");
+    if (!email) {
+      toast.error(
+        "Por favor, ingresá tu correo electrónico para restablecer la contraseña.",
+      );
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const supabase = createSupabaseClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/login/update-password`,
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success(
+          "Te enviamos un correo con las instrucciones para restablecer tu contraseña.",
+        );
+      }
+    } catch (err) {
+      console.error("Error al solicitar restablecimiento de contraseña:", err);
+      toast.error("Ocurrió un error inesperado. Intentá de nuevo.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const onSubmit = async (data: AuthFormValues) => {
     setIsLoading(true);
@@ -132,7 +166,7 @@ export function LoginForm() {
       {/* Header Section */}
       <div className="text-center flex flex-col items-center w-full mb-2">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900 transition-all duration-300">
-          {isRegister ? "Registro IMAYKANA" : "Login IMAYKANA"}
+          {isRegister ? "Registro" : "Inicio de Sesión"}
         </h1>
         <p className="mt-1.5 text-xs text-gray-500 max-w-xs transition-all duration-300">
           {isRegister
@@ -282,17 +316,42 @@ export function LoginForm() {
             >
               Contraseña
             </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              {...register("password")}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
-              disabled={isLoading}
-              placeholder="••••••••"
-            />
+            <div className="relative flex items-center">
+              <input
+                id="password"
+                type={verContrasena ? "text" : "password"}
+                autoComplete="current-password"
+                {...register("password")}
+                className="w-full rounded-lg border border-gray-300 pl-3 pr-10 py-1.5 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
+                disabled={isLoading}
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setVerContrasena(!verContrasena)}
+                className="absolute right-3 text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                {verContrasena ? (
+                  <Eye className="h-4 w-4" />
+                ) : (
+                  <EyeOff className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             {errors.password && (
               <p className="text-xs text-red-600">{errors.password.message}</p>
+            )}
+            {!isRegister && (
+              <div className="flex justify-end mt-0.5">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-[11px] text-gray-500 hover:text-gray-950 hover:underline cursor-pointer"
+                  disabled={isLoading}
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
+              </div>
             )}
           </div>
 
