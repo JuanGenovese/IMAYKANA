@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+.git
+.gitignore
+README.md
+*.log
+ts_errs.txt
+ts_out.txt

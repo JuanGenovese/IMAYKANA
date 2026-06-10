@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Edit2, Trash2, Users, Info } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Users, Info, Check, X, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 
 interface Usuario {
@@ -11,6 +11,7 @@ interface Usuario {
   nDni: string;
   email: string;
   idRol: number;
+  solicitudVendedor?: boolean;
 }
 
 interface Rol {
@@ -48,6 +49,7 @@ const INITIAL_USERS: Usuario[] = [
     nDni: "42111222",
     email: "carlos.rod@example.com",
     idRol: 3,
+    solicitudVendedor: true,
   },
 ];
 
@@ -63,6 +65,7 @@ export default function UsuariosABM() {
     nDni: "",
     email: "",
     idRol: 3,
+    solicitudVendedor: false,
   });
 
   const filteredUsers = users.filter(
@@ -81,6 +84,7 @@ export default function UsuariosABM() {
       nDni: "",
       email: "",
       idRol: 3,
+      solicitudVendedor: false,
     });
     setIsModalOpen(true);
   };
@@ -93,8 +97,36 @@ export default function UsuariosABM() {
       nDni: user.nDni,
       email: user.email,
       idRol: user.idRol,
+      solicitudVendedor: !!user.solicitudVendedor,
     });
     setIsModalOpen(true);
+  };
+
+  const handleApproveSeller = (user: Usuario) => {
+    setUsers(
+      users.map((u) =>
+        u.id === user.id ? { ...u, idRol: 2, solicitudVendedor: false } : u
+      )
+    );
+    toast.success(`Solicitud aprobada: ${user.nombre} ahora es Vendedor.`);
+  };
+
+  const handleRejectSeller = (user: Usuario) => {
+    setUsers(
+      users.map((u) =>
+        u.id === user.id ? { ...u, solicitudVendedor: false } : u
+      )
+    );
+    toast.error(`Solicitud rechazada para ${user.nombre}.`);
+  };
+
+  const handleDemoteSeller = (user: Usuario) => {
+    setUsers(
+      users.map((u) =>
+        u.id === user.id ? { ...u, idRol: 3, solicitudVendedor: false } : u
+      )
+    );
+    toast.info(`${user.nombre} ha sido degradado a Cliente.`);
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -195,12 +227,52 @@ export default function UsuariosABM() {
                     <td className="px-6 py-4 font-mono text-gray-600">{user.nDni}</td>
                     <td className="px-6 py-4 text-gray-600">{user.email}</td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                        {getRolName(user.idRol)}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset ${
+                          user.idRol === 1
+                            ? "bg-purple-50 text-purple-700 ring-purple-700/10"
+                            : user.idRol === 2
+                            ? "bg-emerald-50 text-emerald-700 ring-emerald-600/10"
+                            : "bg-gray-50 text-gray-600 ring-gray-500/10"
+                        }`}>
+                          {getRolName(user.idRol)}
+                        </span>
+                        {user.solicitudVendedor && (
+                          <span className="inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-800 ring-1 ring-inset ring-amber-600/20 animate-pulse">
+                            Solicitud Vendedor
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
+                        {user.solicitudVendedor && (
+                          <>
+                            <button
+                              onClick={() => handleApproveSeller(user)}
+                              className="rounded-lg border border-emerald-100 p-2 text-emerald-600 hover:bg-emerald-50 transition"
+                              title="Aprobar Vendedor"
+                            >
+                              <Check className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleRejectSeller(user)}
+                              className="rounded-lg border border-amber-100 p-2 text-amber-600 hover:bg-amber-50 transition"
+                              title="Rechazar Solicitud"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
+                        {user.idRol === 2 && !user.solicitudVendedor && (
+                          <button
+                            onClick={() => handleDemoteSeller(user)}
+                            className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition"
+                            title="Quitar Rol Vendedor"
+                          >
+                            <UserMinus className="h-4 w-4" />
+                          </button>
+                        )}
                         <button
                           onClick={() => handleOpenEditModal(user)}
                           className="rounded-lg border border-gray-200 p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition"
@@ -283,7 +355,14 @@ export default function UsuariosABM() {
                 <label className="text-xs font-semibold text-gray-500">Rol</label>
                 <select
                   value={formData.idRol}
-                  onChange={(e) => setFormData({ ...formData, idRol: Number(e.target.value) })}
+                  onChange={(e) => {
+                    const newRol = Number(e.target.value);
+                    setFormData({
+                      ...formData,
+                      idRol: newRol,
+                      solicitudVendedor: newRol === 3 ? formData.solicitudVendedor : false
+                    });
+                  }}
                   className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-gray-900 transition bg-none"
                 >
                   {ROLES.map((rol) => (
@@ -293,6 +372,20 @@ export default function UsuariosABM() {
                   ))}
                 </select>
               </div>
+              {formData.idRol === 3 && (
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="solicitudVendedor"
+                    checked={formData.solicitudVendedor}
+                    onChange={(e) => setFormData({ ...formData, solicitudVendedor: e.target.checked })}
+                    className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                  />
+                  <label htmlFor="solicitudVendedor" className="text-xs font-semibold text-gray-600 select-none cursor-pointer">
+                    Tiene solicitud de vendedor pendiente
+                  </label>
+                </div>
+              )}
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"

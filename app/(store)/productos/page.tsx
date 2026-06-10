@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { categorias } from "@/lib/db/schema";
-import { getAvailableProducts, getFeaturedProducts } from "@/lib/db/queries";
+import { getAvailableProducts, getFeaturedProducts } from "@/lib/db/schema/queries/queries";
 import { CategoryIconRow } from "@/components/category-icon-row";
 import QuickAddCart from "@/components/quick-add-cart";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,10 +47,10 @@ export default async function ProductsPage({
   // Filtrar productos por categoría elegida
   const products = activeCategory
     ? allProducts.filter(
-        (p) =>
-          p.talleXCategoria?.categoria?.categoria?.toLowerCase() ===
-          activeCategory.toLowerCase(),
-      )
+      (p) =>
+        p.talleXCategoria?.categoria?.categoria?.toLowerCase() ===
+        activeCategory.toLowerCase(),
+    )
     : allProducts;
 
   const hasFeatured = featured && featured.length > 0;

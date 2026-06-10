@@ -160,15 +160,15 @@ export function LoginForm() {
     <div
       className={cn(
         "mt-10 mb-10 w-full flex flex-col items-center justify-center transition-all ease-in-out duration-300",
-        isRegister ? "max-w-[420px]" : "max-w-[360px]",
+        isRegister ? "max-w-[480px]" : "max-w-[420px]",
       )}
     >
       {/* Header Section */}
-      <div className="text-center flex flex-col items-center w-full mb-2">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900 transition-all duration-300">
+      <div className="text-center flex flex-col items-center w-full mb-3">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 transition-all duration-300">
           {isRegister ? "Registro" : "Inicio de Sesión"}
         </h1>
-        <p className="mt-1.5 text-xs text-gray-500 max-w-xs transition-all duration-300">
+        <p className="mt-2 text-sm text-gray-500 max-w-sm transition-all duration-300">
           {isRegister
             ? "Creá una cuenta y empezá a comprar o vender."
             : "Ingresá tus credenciales para continuar."}
@@ -179,7 +179,7 @@ export function LoginForm() {
       <div className="w-full relative z-10 flex flex-col">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm w-full relative z-10 mt-2"
+          className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm w-full relative z-10 mt-2"
         >
           {/* Sección de Campos Animados para Registro */}
           <div
@@ -204,7 +204,7 @@ export function LoginForm() {
                   type="text"
                   placeholder="Ej. Juan"
                   {...register("nombre")}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
+                  className="rounded-lg border border-gray-300 px-3.5 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
                   disabled={isLoading}
                 />
                 {errors.nombre && (
@@ -226,7 +226,7 @@ export function LoginForm() {
                   type="text"
                   placeholder="Ej. Pérez"
                   {...register("apellido")}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
+                  className="rounded-lg border border-gray-300 px-3.5 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
                   disabled={isLoading}
                 />
                 {errors.apellido && (
@@ -250,7 +250,7 @@ export function LoginForm() {
                 type="text"
                 placeholder="Ej. 35444888"
                 {...register("nDni")}
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
+                className="rounded-lg border border-gray-300 px-3.5 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
                 disabled={isLoading}
               />
               {errors.nDni && (
@@ -299,7 +299,7 @@ export function LoginForm() {
               type="email"
               autoComplete="email"
               {...register("email")}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
+              className="rounded-lg border border-gray-300 px-3.5 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
               disabled={isLoading}
               placeholder="imaykana@gmail.com"
             />
@@ -322,7 +322,7 @@ export function LoginForm() {
                 type={verContrasena ? "text" : "password"}
                 autoComplete="current-password"
                 {...register("password")}
-                className="w-full rounded-lg border border-gray-300 pl-3 pr-10 py-1.5 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
+                className="w-full rounded-lg border border-gray-300 pl-3.5 pr-10 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
                 disabled={isLoading}
                 placeholder="••••••••"
               />
@@ -359,7 +359,7 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-1 flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-700 disabled:opacity-60 cursor-pointer"
+            className="mt-2 flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-700 disabled:opacity-60 cursor-pointer"
           >
             {isLoading
               ? isRegister

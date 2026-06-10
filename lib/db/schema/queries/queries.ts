@@ -1,10 +1,9 @@
 import { eq } from "drizzle-orm";
-import { db } from "./index";
-import { productos, estados, type ProductoConRelaciones } from "./schema";
+import { db } from "../../index";
+import { productos, estados } from "..";
+import { type ProductoConRelaciones } from "./Interface";
 
-/**
- * Obtiene todos los productos disponibles (catálogo).
- */
+
 export async function getAvailableProducts(): Promise<ProductoConRelaciones[]> {
   return (await db.query.productos.findMany({
     where: (productos, { eq }) => eq(
@@ -12,7 +11,7 @@ export async function getAvailableProducts(): Promise<ProductoConRelaciones[]> {
       db
         .select({ id: estados.id })
         .from(estados)
-        .where(eq(estados.estado, "AVAILABLE"))
+        .where(eq(estados.estado, "Disponible"))
     ),
     orderBy: (productos, { desc }) => [desc(productos.id)],
     with: {
@@ -28,18 +27,10 @@ export async function getAvailableProducts(): Promise<ProductoConRelaciones[]> {
   })) as ProductoConRelaciones[];
 }
 
-/**
- * Obtiene los últimos productos disponibles para destacar (Hero/Carousel).
- */
-export async function getFeaturedProducts(limit: number = 5): Promise<ProductoConRelaciones[]> {
+
+export async function getFeaturedProducts(limit?: number): Promise<ProductoConRelaciones[]> {
   return (await db.query.productos.findMany({
-    where: (productos, { eq }) => eq(
-      productos.idEstado,
-      db
-        .select({ id: estados.id })
-        .from(estados)
-        .where(eq(estados.estado, "AVAILABLE"))
-    ),
+    where: (productos, { eq }) => eq(productos.destacado, true),
     orderBy: (productos, { desc }) => [desc(productos.id)],
     limit,
     with: {
@@ -55,9 +46,7 @@ export async function getFeaturedProducts(limit: number = 5): Promise<ProductoCo
   })) as ProductoConRelaciones[];
 }
 
-/**
- * Obtiene un producto por su ID.
- */
+
 export async function getProductById(id: number): Promise<ProductoConRelaciones | null> {
   const result = await db.query.productos.findFirst({
     where: eq(productos.id, id),
@@ -75,7 +64,7 @@ export async function getProductById(id: number): Promise<ProductoConRelaciones 
   return (result as ProductoConRelaciones) ?? null;
 }
 
-// Helper de formateo (mantenido del original)
+
 export function formatARS(value: number) {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",

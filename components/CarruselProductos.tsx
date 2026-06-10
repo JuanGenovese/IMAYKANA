@@ -1,21 +1,21 @@
 "use client";
 
-import * as React from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import type { ProductoConRelaciones } from "@/lib/db/schema";
+import type { ProductoConRelaciones } from "@/lib/db/schema/queries/Interface";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-export function ProductCarousel({
-  products,
+export function ProductosCarrusel({
+  products
 }: {
   products: ProductoConRelaciones[];
 }) {
-  const scrollerRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
 
   const scrollByCards = (direction: -1 | 1) => {
     const el = scrollerRef.current;

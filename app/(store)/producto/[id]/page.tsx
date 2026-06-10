@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 
 import { ProductDetailClient } from "@/components/product-detail-client";
 import { Button } from "@/components/ui/button";
-import { getProductById } from "@/lib/db/queries";
+import { getProductById } from "@/lib/db/schema/queries/queries";
 
 type Props = {
   params: Promise<{ id: string }>;
