@@ -8,3 +8,5 @@ export * from "./estados";
 export * from "./transacciones";
 export * from "./productos";
 export * from "./imagenes";
+export * from "./queries/Interface";
+
