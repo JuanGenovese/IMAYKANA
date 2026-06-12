@@ -33,20 +33,19 @@ export async function middleware(request: NextRequest) {
   const isDashboard = pathname.startsWith("/dashboard");
   const isLogin = pathname === "/login";
 
-  // Solo hacemos la verificación de sesión en rutas protegidas o en el login
-  if (isDashboard || isLogin) {
+
+  // ------------------- Rutas Protegidas -------------------
+  if (request.method === "GET" && (isDashboard || isLogin)) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // Protección de rutas: /dashboard requiere login
     if (!user && isDashboard) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       return NextResponse.redirect(url);
     }
 
-    // Si está logueado y va al login, mandarlo al dashboard
     if (user && isLogin) {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
