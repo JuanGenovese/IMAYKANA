@@ -3,6 +3,8 @@ import { productos, estados } from "@/lib/db/schema";
 import { sql, eq } from "drizzle-orm";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 async function getStats() {
   const result = await db
     .select({

@@ -3,6 +3,8 @@ import { Destacados } from "@/app/(store)/(HomePage)/sections/Destacados/Destaca
 import { LaMarca } from "@/app/(store)/(HomePage)/sections/LaMarca";
 import { ComoComprar } from "@/app/(store)/(HomePage)/sections/ComoComprar";
 
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   return (
     <main className="w-full">
