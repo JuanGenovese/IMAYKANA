@@ -145,6 +145,8 @@ export function useLoginForm() {
             toast.success(
               `Acceso concedido. ¡Hola, ${userProfile.usuario.nombre}!`
             );
+            router.push("/dashboard");
+            router.refresh();
           } else {
             toast.error(
               userProfile.error ||

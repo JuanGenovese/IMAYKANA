@@ -30,18 +30,12 @@ export function FormularioActualizarContrasena() {
 
   if (!estaPermitido) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 text-center max-w-[420px] rounded-xl border border-gray-200 bg-white shadow-sm w-full">
-        <h2 className="text-lg font-bold text-red-600 mb-2">Acceso Denegado</h2>
-        <p className="text-xs text-gray-500 mb-4">
-          No tenés permisos para acceder a esta página. Por favor, solicitá un
-          nuevo enlace de restablecimiento.
+      <div className="flex flex-col items-center justify-center p-6 text-center max-w-[500px] h-[20vh] rounded-xl border border-gray-200 bg-white shadow-sm w-full">
+        <h2 className="text-xl font-bold text-red-600 mb-2">Acceso Denegado</h2>
+        <p className="text-m text-gray-500 mb-4">
+          El enlace de recuperación es inválido o expiró. Por favor, solicitá
+          uno nuevo.
         </p>
-        <button
-          onClick={() => router.push("/login")}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-gray-700 cursor-pointer"
-        >
-          Volver al Login
-        </button>
       </div>
     );
   }

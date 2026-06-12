@@ -64,8 +64,8 @@ export function useUpdatePasswordForm() {
         setEstaVerificando(false);
         return;
       }
-      
-      // If there is no code in the URL, check if there's a session already active
+
+
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setEstaPermitido(true);

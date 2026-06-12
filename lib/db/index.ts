@@ -5,9 +5,10 @@ import * as schema from "./schema";
 const globalForDb = globalThis as unknown as { pool: Pool };
 
 const connectionString =
-  process.env.ENTORNO === "local"
+  process.env.ENTORNO === 'local'
     ? process.env.DATABASE_LOCAL_URL
     : process.env.DATABASE_PROD_URL;
+
 
 const pool =
   globalForDb.pool ??
