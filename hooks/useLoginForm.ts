@@ -6,25 +6,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createSupabaseClient } from "@/lib/supabase/client";
-import { z } from "zod";
 import {
   AuthFormValues,
   loginSchema,
   registerSchema,
+  resetSchema,
 } from "@/components/admin/Schemas/LoginSchemas";
 import { obtenerUsuarioPorId } from "@/actions/usuarios";
 
-const resetSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().optional(),
-  nombre: z.string().optional(),
-  apellido: z.string().optional(),
-  nDni: z.string().optional(),
-  isVendedor: z.boolean().optional(),
-});
-
 export function useLoginForm() {
   const router = useRouter();
+  const supabase = createSupabaseClient();
   const [isLoading, setIsLoading] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [isResetPass, setIsResetPass] = useState(false);
@@ -49,7 +41,6 @@ export function useLoginForm() {
     },
   });
 
-  // Reset form when switching mode
   useEffect(() => {
     reset({
       email: "",
@@ -64,7 +55,6 @@ export function useLoginForm() {
   const handleSendResetEmail = async (email: string) => {
     setIsLoading(true);
     try {
-      const supabase = createSupabaseClient();
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/login/update-password`,
       });
@@ -92,7 +82,6 @@ export function useLoginForm() {
     }
     setIsLoading(true);
     try {
-      const supabase = createSupabaseClient();
 
       if (isRegister) {
         if (!data.nombre || !data.apellido || !data.nDni) {
@@ -120,14 +109,19 @@ export function useLoginForm() {
           const userProfile = await obtenerUsuarioPorId(authData.user.id);
           if (userProfile.success && userProfile.usuario) {
             localStorage.setItem("user", JSON.stringify(userProfile.usuario));
+            toast.success(
+              "¡Registro exitoso! Por favor confirmá tu correo para activar la cuenta."
+            );
+            router.push("/productos");
+            router.refresh();
+            setIsRegister(false);
+          } else {
+            await supabase.auth.signOut();
+            toast.error(
+              userProfile.error ||
+              "Error al sincronizar el perfil de usuario. Intente registrarse de nuevo."
+            );
           }
-
-          toast.success(
-            "¡Registro exitoso! Por favor confirmá tu correo para activar la cuenta."
-          );
-          router.push("/productos");
-          router.refresh();
-          setIsRegister(false);
         }
       } else {
         const { data: authData, error } =
@@ -148,6 +142,7 @@ export function useLoginForm() {
             router.push("/dashboard");
             router.refresh();
           } else {
+            await supabase.auth.signOut();
             toast.error(
               userProfile.error ||
               "No se pudo recuperar el perfil del usuario."
@@ -155,11 +150,16 @@ export function useLoginForm() {
           }
         }
       }
+
     } catch (err) {
+      await supabase.auth.signOut();
       toast.error("Error inesperado. Intentá de nuevo.");
       console.error(err);
+
     } finally {
+
       setIsLoading(false);
+
     }
   };
 
