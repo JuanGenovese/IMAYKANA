@@ -22,7 +22,7 @@ function isAuthorized(request: Request): boolean {
 
 // Helper para obtener o crear la relación Talle x Categoría
 async function getOrCreateTalleXCategoria(
-  tx: any,
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
   categoryName: string,
   sizeName: string,
 ): Promise<number> {

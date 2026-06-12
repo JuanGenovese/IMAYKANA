@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -38,7 +38,7 @@ export function useLoginForm() {
   } = useForm<AuthFormValues>({
     resolver: zodResolver(
       isResetPass ? resetSchema : isRegister ? registerSchema : loginSchema
-    ) as any,
+    ) as Resolver<AuthFormValues>,
     defaultValues: {
       email: "",
       password: "",
@@ -165,7 +165,7 @@ export function useLoginForm() {
 
   return {
     register,
-    handleSubmit: (onValid: any) => handleSubmit(onValid),
+    handleSubmit,
     onSubmit,
     errors,
     isLoading,

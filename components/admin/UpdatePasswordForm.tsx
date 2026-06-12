@@ -14,7 +14,6 @@ export function FormularioActualizarContrasena() {
     estaVerificando,
     verContrasena,
     setVerContrasena,
-    router,
   } = useUpdatePasswordForm();
 
   if (estaVerificando) {

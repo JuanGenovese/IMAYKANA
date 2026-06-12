@@ -130,7 +130,7 @@ export function useUpdatePasswordForm() {
 
   return {
     register,
-    handleSubmit: (onValid: any) => handleSubmit(onValid),
+    handleSubmit,
     alEnviar,
     errores,
     estaCargando,

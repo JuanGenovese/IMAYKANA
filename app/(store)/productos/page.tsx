@@ -5,7 +5,6 @@ import { categorias } from "@/lib/db/schema";
 import { getAvailableProducts, getFeaturedProducts } from "@/lib/db/schema/queries/queries";
 import { CategoryIconRow } from "@/components/category-icon-row";
 import QuickAddCart from "@/components/quick-add-cart";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 export const metadata = {

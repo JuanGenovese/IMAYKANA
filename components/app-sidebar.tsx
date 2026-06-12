@@ -6,13 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import {
     LayoutDashboard,
     Package,
-    Shield,
     Users,
-    CreditCard,
-    Tag,
-    Ruler,
     GitFork,
-    Activity,
     LogOut
 } from "lucide-react";
 import { createSupabaseClient } from "@/lib/supabase/client";

@@ -28,22 +28,23 @@ export async function crearUsuario(data: {
       .returning();
 
     return { success: true, usuario: nuevoUsuario };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error al crear usuario en la base de datos local:", error);
+    const err = error as { code?: string; detail?: string; message?: string };
 
     // Postgres error code 23505 is for unique_violation
-    if (error.code === "23505") {
-      if (error.detail?.includes("email")) {
+    if (err.code === "23505") {
+      if (err.detail?.includes("email")) {
         return { success: false, error: "El correo electrónico ya está registrado." };
       }
-      if (error.detail?.includes("n_dni")) {
+      if (err.detail?.includes("n_dni")) {
         return { success: false, error: "El DNI ya está registrado." };
       }
     }
 
     return {
       success: false,
-      error: error.message || "Error al registrar el perfil en la base de datos local.",
+      error: err.message || "Error al registrar el perfil en la base de datos local.",
     };
   }
 }
@@ -70,11 +71,12 @@ export async function obtenerUsuarioPorId(id: string) {
         rol: user.rol.rol,
       },
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error al obtener usuario de la base de datos:", error);
+    const err = error as { message?: string };
     return {
       success: false,
-      error: error.message || "Error al obtener perfil desde la base de datos.",
+      error: err.message || "Error al obtener perfil desde la base de datos.",
     };
   }
 }
