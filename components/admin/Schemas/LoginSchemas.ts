@@ -19,7 +19,11 @@ export const registerSchema = z.object({
 export type LoginValues = z.infer<typeof loginSchema>;
 export type RegisterValues = z.infer<typeof registerSchema>;
 
-// Tipo unificado para el estado del formulario
+export const resetSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().optional(),
+});
+
 export interface AuthFormValues {
   email: string;
   password: string;
