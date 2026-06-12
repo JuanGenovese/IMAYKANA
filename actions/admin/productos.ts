@@ -6,6 +6,7 @@ import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { obtenerUsuarioPorId } from "@/actions/usuarios";
 
 const productoSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -22,6 +23,16 @@ async function verifyAdmin() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Sin autorización");
+
+  const userProfile = await obtenerUsuarioPorId(user.id);
+  if (
+    !userProfile.success ||
+    !userProfile.usuario ||
+    (userProfile.usuario.rol !== "Administrador" &&
+      userProfile.usuario.rol !== "Vendedor")
+  ) {
+    throw new Error("Sin autorización");
+  }
 }
 
 async function getOrCreateTalleXCategoria(
