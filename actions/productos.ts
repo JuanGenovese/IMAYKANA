@@ -5,9 +5,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { obtenerUsuarioPorId } from "@/actions/usuarios";
 import { productoSchema } from "@/lib/schemas/productos";
 import {
-  createProductCore,
-  updateProductCore,
-  deleteProductCore
+  createProduct,
+  updateProduct,
+  deleteProduct
 } from "@/lib/services/productosCore";
 
 async function verifyAdmin() {
@@ -34,7 +34,7 @@ export async function crearProducto(data: unknown) {
   }
 
   try {
-    const productoCreado = await createProductCore(parsed.data);
+    const productoCreado = await createProduct(parsed.data);
 
     revalidatePath("/dashboard/productos");
     revalidatePath("/productos");
@@ -54,7 +54,7 @@ export async function actualizarProducto(id: number, data: unknown) {
   }
 
   try {
-    await updateProductCore(id, parsed.data);
+    await updateProduct(id, parsed.data);
 
     revalidatePath("/dashboard/productos");
     revalidatePath(`/productos/${id}`);
@@ -70,7 +70,7 @@ export async function actualizarProducto(id: number, data: unknown) {
 export async function eliminarProducto(id: number) {
   await verifyAdmin();
   try {
-    await deleteProductCore(id);
+    await deleteProduct(id);
 
     revalidatePath("/dashboard/productos");
     revalidatePath("/productos");

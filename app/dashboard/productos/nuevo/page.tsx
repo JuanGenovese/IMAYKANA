@@ -1,8 +1,11 @@
 import { ProductoForm } from "@/components/admin/ProductoForm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getFormMetadata } from "@/lib/services/productosCore";
 
-export default function NuevoProductoPage() {
+export default async function NuevoProductoPage() {
+  const metadata = await getFormMetadata();
+
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -17,7 +20,7 @@ export default function NuevoProductoPage() {
       <div>
         <h1 className="mb-6 text-2xl font-bold text-gray-900">Nuevo Producto</h1>
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm max-w-3xl">
-          <ProductoForm />
+          <ProductoForm metadata={metadata} />
         </div>
       </div>
     </div>

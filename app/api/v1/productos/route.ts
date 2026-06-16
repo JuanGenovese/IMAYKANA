@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { productoSchema } from "@/lib/schemas/productos";
 import {
-  getAllProductsCore,
-  createProductCore
+  getAllProducts,
+  createProduct
 } from "@/lib/services/productosCore";
 
 // Función de validación de autenticación por Token (API Key)
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const productsList = await getAllProductsCore();
+    const productsList = await getAllProducts();
     return NextResponse.json({ success: true, data: productsList });
   } catch (error) {
     console.error("Error in GET /api/v1/productos:", error);
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await createProductCore(parsed.data);
+    const result = await createProduct(parsed.data);
     return NextResponse.json({ success: true, data: result }, { status: 201 });
   } catch (error) {
     console.error("Error in POST /api/v1/productos:", error);

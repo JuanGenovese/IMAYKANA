@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { ProductoForm } from "@/components/admin/ProductoForm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getProductByIdCore } from "@/lib/services/productosCore";
+import { getProductById, getFormMetadata } from "@/lib/services/productosCore";
 import { type ProductoConRelaciones } from "@/lib/db/schema";
 
 interface EditarProductoPageProps {
@@ -19,7 +19,10 @@ export default async function EditarProductoPage({
     notFound();
   }
 
-  const producto = await getProductByIdCore(parsedId);
+  const [producto, metadata] = await Promise.all([
+    getProductById(parsedId),
+    getFormMetadata(),
+  ]);
 
   if (!producto) {
     notFound();
@@ -41,7 +44,7 @@ export default async function EditarProductoPage({
           <h1 className="text-2xl font-bold text-gray-900">Editar Producto</h1>
         </div>
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm max-w-3xl">
-          <ProductoForm producto={producto as ProductoConRelaciones} />
+          <ProductoForm producto={producto as ProductoConRelaciones} metadata={metadata} />
         </div>
       </div>
     </div>

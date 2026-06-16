@@ -4,13 +4,27 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { crearProducto, actualizarProducto } from "@/actions/productos";
-import { type ProductoFormValues, productoFormSchema, type ProductoFormProps } from "@/lib/schemas/productos";
+import { type ProductoFormValues, productoFormSchema } from "@/lib/schemas/productos";
 import { Field, inputCls } from "@/components/admin/Field";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { cn } from "@/lib/utils";
+import { type ProductoConRelaciones } from "@/lib/db/schema";
 
-export function ProductoForm({ producto }: ProductoFormProps) {
+export interface FormMetadata {
+  categories: string[];
+  statuses: string[];
+  categorySizes: Array<{ category: string; size: string }>;
+}
+
+export interface ProductoFormProps {
+  producto?: ProductoConRelaciones;
+  metadata: FormMetadata;
+  onClose?: () => void;
+}
+
+export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [photoUrls, setPhotoUrls] = useState<string[]>(
@@ -20,6 +34,9 @@ export function ProductoForm({ producto }: ProductoFormProps) {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<ProductoFormValues>({
     resolver: zodResolver(productoFormSchema),
@@ -30,11 +47,29 @@ export function ProductoForm({ producto }: ProductoFormProps) {
       color: producto?.color ?? "",
       descriptionSummary: producto?.descripcion ?? "",
       specificMeasurements: producto?.medidasEspecificas ?? "",
-      status: (producto?.estado?.estado as ProductoFormValues["status"]) ?? "Disponible",
+      status: producto?.estado?.estado ?? "Disponible",
+      featured: producto?.destacado ?? false,
     },
   });
 
   const isLoading = isSubmitting || isPending;
+  const watchCategory = watch("category");
+
+  // Resetear el talle si deja de estar en la categoría elegida
+  useEffect(() => {
+    if (watchCategory) {
+      const isValid = metadata.categorySizes.some(
+        (cs) => cs.category === watchCategory && cs.size === getValues("size")
+      );
+      if (!isValid) {
+        setValue("size", "");
+      }
+    }
+  }, [watchCategory, setValue, getValues, metadata.categorySizes]);
+
+  const availableSizes = metadata.categorySizes
+    .filter((cs) => cs.category === watchCategory)
+    .map((cs) => cs.size);
 
   const onSubmit = (data: ProductoFormValues) => {
     startTransition(async () => {
@@ -49,8 +84,8 @@ export function ProductoForm({ producto }: ProductoFormProps) {
         toast.success(
           producto ? "Producto actualizado." : "Producto creado con éxito.",
         );
-        router.push("/dashboard/productos");
         router.refresh();
+        onClose?.();
       }
     });
   };
@@ -67,22 +102,39 @@ export function ProductoForm({ producto }: ProductoFormProps) {
             className={inputCls}
           />
         </Field>
+
         <Field label="Categoría" error={errors.category?.message}>
-          <input
+          <select
             {...register("category")}
             disabled={isLoading}
-            placeholder="Camperas"
             className={inputCls}
-          />
+          >
+            <option value="">Seleccionar categoría</option>
+            {metadata.categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
         </Field>
+
         <Field label="Talle" error={errors.size?.message}>
-          <input
+          <select
             {...register("size")}
-            disabled={isLoading}
-            placeholder="M"
+            disabled={isLoading || !watchCategory}
             className={inputCls}
-          />
+          >
+            <option value="">
+              {!watchCategory ? "Selecciona primero una categoría" : "Seleccionar talle"}
+            </option>
+            {availableSizes.map((sz) => (
+              <option key={sz} value={sz}>
+                {sz}
+              </option>
+            ))}
+          </select>
         </Field>
+
         <Field label="Color" error={errors.color?.message}>
           <input
             {...register("color")}
@@ -91,6 +143,7 @@ export function ProductoForm({ producto }: ProductoFormProps) {
             className={inputCls}
           />
         </Field>
+
         <Field
           label="Medidas específicas"
           error={errors.specificMeasurements?.message}
@@ -102,17 +155,34 @@ export function ProductoForm({ producto }: ProductoFormProps) {
             className={inputCls}
           />
         </Field>
+
         <Field label="Estado" error={errors.status?.message}>
           <select
             {...register("status")}
             disabled={isLoading}
             className={inputCls}
           >
-            <option value="Disponible">Disponible</option>
-            <option value="Reservado">Reservado</option>
-            <option value="Vendido">Vendido</option>
+            <option value="">Seleccionar estado</option>
+            {metadata.statuses.map((st) => (
+              <option key={st} value={st}>
+                {st}
+              </option>
+            ))}
           </select>
         </Field>
+
+        <div className="flex items-center gap-2 sm:col-span-2 pt-2">
+          <input
+            type="checkbox"
+            id="featured"
+            {...register("featured")}
+            disabled={isLoading}
+            className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+          />
+          <label htmlFor="featured" className="text-sm font-medium text-gray-700 select-none">
+            Destacar producto (se mostrará en la sección de destacados de la tienda)
+          </label>
+        </div>
       </div>
 
       <Field label="Descripción" error={errors.descriptionSummary?.message}>
@@ -121,7 +191,7 @@ export function ProductoForm({ producto }: ProductoFormProps) {
           disabled={isLoading}
           rows={3}
           placeholder="Descripción del producto..."
-          className={inputCls + " resize-none"}
+          className={cn(inputCls, "resize-none")}
         />
       </Field>
 
@@ -147,7 +217,7 @@ export function ProductoForm({ producto }: ProductoFormProps) {
         </button>
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => (onClose ? onClose() : router.back())}
           disabled={isLoading}
           className="rounded-lg border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
         >

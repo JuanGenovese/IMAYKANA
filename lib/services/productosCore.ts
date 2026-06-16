@@ -137,12 +137,13 @@ interface ProductPayload {
   color: string;
   descriptionSummary: string;
   specificMeasurements: string;
-  status: "Disponible" | "Reservado" | "Vendido";
+  status: string;
   photoUrls: string[];
+  featured: boolean;
 }
 
 export async function createProductCore(data: ProductPayload) {
-  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls } = data;
+  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured } = data;
 
   const result = await db.transaction(async (tx) => {
     // 1. Obtener ID de relación talle x categoría
@@ -157,6 +158,7 @@ export async function createProductCore(data: ProductPayload) {
     // 3. Insertar el Producto
     const [productoCreado] = await tx.insert(productos).values({
       nombre: name,
+      destacado: featured,
       idTalleXCategoria: talleXCategoriaId,
       cantidad: 1,
       idEstado: estadoId,
@@ -182,7 +184,7 @@ export async function createProductCore(data: ProductPayload) {
 }
 
 export async function updateProductCore(id: number, data: ProductPayload) {
-  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls } = data;
+  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured } = data;
 
   await db.transaction(async (tx) => {
     // 1. Obtener ID de relación talle x categoría
@@ -197,6 +199,7 @@ export async function updateProductCore(id: number, data: ProductPayload) {
     // 3. Actualizar el Producto
     await tx.update(productos).set({
       nombre: name,
+      destacado: featured,
       idTalleXCategoria: talleXCategoriaId,
       idEstado: estadoId,
       color,
@@ -241,10 +244,34 @@ export async function getProductsByIdsCore(ids: number[]): Promise<ProductoConRe
   })) as ProductoConRelaciones[];
 }
 
+export async function getFormMetadata() {
+  const allCategories = await db.select().from(categorias);
+  const allStatuses = await db.select().from(estados);
+  const allTallesXCategoria = await db.query.tallesXCategoria.findMany({
+    with: {
+      talle: true,
+      categoria: true,
+    },
+  });
+
+  return {
+    categories: allCategories.map((c) => c.categoria),
+    statuses: allStatuses.map((s) => s.estado),
+    categorySizes: allTallesXCategoria.map((tc) => ({
+      category: tc.categoria.categoria,
+      size: tc.talle.talle,
+    })),
+  };
+}
+
 export {
   getAvailableProductsCore as getAvailableProducts,
   getFeaturedProductsCore as getFeaturedProducts,
   getProductByIdCore as getProductById,
-  getProductsByIdsCore as getProductsByIds
+  getProductsByIdsCore as getProductsByIds,
+  getAllProductsCore as getAllProducts,
+  createProductCore as createProduct,
+  updateProductCore as updateProduct,
+  deleteProductCore as deleteProduct
 };
 
