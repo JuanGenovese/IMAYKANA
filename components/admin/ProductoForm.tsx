@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { crearProducto, actualizarProducto } from "@/actions/productos";
-import { type ProductoValues, productoSchema, type ProductoFormProps } from "@/components/admin/Schemas/ProductSchema";
+import { type ProductoFormValues, productoFormSchema, type ProductoFormProps } from "@/lib/schemas/productos";
 import { Field, inputCls } from "@/components/admin/Field";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 
@@ -21,8 +21,8 @@ export function ProductoForm({ producto }: ProductoFormProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ProductoValues>({
-    resolver: zodResolver(productoSchema),
+  } = useForm<ProductoFormValues>({
+    resolver: zodResolver(productoFormSchema),
     defaultValues: {
       name: producto?.nombre ?? "",
       category: producto?.talleXCategoria?.categoria?.categoria ?? "",
@@ -30,13 +30,13 @@ export function ProductoForm({ producto }: ProductoFormProps) {
       color: producto?.color ?? "",
       descriptionSummary: producto?.descripcion ?? "",
       specificMeasurements: producto?.medidasEspecificas ?? "",
-      status: (producto?.estado?.estado as ProductoValues["status"]) ?? "Disponible",
+      status: (producto?.estado?.estado as ProductoFormValues["status"]) ?? "Disponible",
     },
   });
 
   const isLoading = isSubmitting || isPending;
 
-  const onSubmit = (data: ProductoValues) => {
+  const onSubmit = (data: ProductoFormValues) => {
     startTransition(async () => {
       const payload = { ...data, photoUrls };
       const result = producto

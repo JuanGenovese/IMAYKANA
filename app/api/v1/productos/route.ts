@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { productoSchema } from "./schema";
+import { productoSchema } from "@/lib/schemas/productos";
 import {
   getAllProductsCore,
   createProductCore

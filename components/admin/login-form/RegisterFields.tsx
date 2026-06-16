@@ -1,6 +1,6 @@
 import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { AuthFormValues } from "../Schemas/LoginSchemas";
+import { AuthFormValues } from "@/lib/schemas/auth";
 import { cn } from "@/lib/utils";
 
 interface RegisterFieldsProps {

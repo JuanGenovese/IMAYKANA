@@ -11,7 +11,7 @@ import {
   loginSchema,
   registerSchema,
   resetSchema,
-} from "@/components/admin/Schemas/LoginSchemas";
+} from "@/lib/schemas/auth";
 import { obtenerUsuarioPorId } from "@/actions/usuarios";
 
 export function useLoginForm() {

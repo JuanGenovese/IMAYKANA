@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
-import { getProductsByIds } from "@/app/actions/db";
+import { getProductsByIdsCore as getProductsByIds } from "@/lib/services/productosCore";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { ResolvedCartItem, Indice } from "./Types";

@@ -1,7 +1,7 @@
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { ScrollToTop } from "@/components/scroll-to-top";
-import { WhatsAppButton } from "@/components/whatsapp-button";
+import { SiteHeader } from "@/components/store/site-header";
+import { SiteFooter } from "@/components/store/site-footer";
+import { ScrollToTop } from "@/components/store/scroll-to-top";
+import { WhatsAppButton } from "@/components/store/whatsapp-button";
 
 export default function StoreLayout({
   children,

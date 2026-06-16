@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { ProductosCarrusel } from "@/components/CarruselProductos";
+import { ProductosCarrusel } from "@/components/store/CarruselProductos";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getFeaturedProducts } from "@/lib/db/schema/queries/queries";

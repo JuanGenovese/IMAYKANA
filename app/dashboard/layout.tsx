@@ -1,6 +1,6 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
+import { AppSidebar } from "@/components/admin/app-sidebar";
+import { SiteHeader } from "@/components/store/site-header";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { obtenerUsuarioPorId } from "@/actions/usuarios";
 import { redirect } from "next/navigation";

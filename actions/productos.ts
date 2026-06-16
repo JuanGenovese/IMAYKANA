@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { obtenerUsuarioPorId } from "@/actions/usuarios";
-import { productoSchema } from "./Schemas/productosSchemas";
+import { productoSchema } from "@/lib/schemas/productos";
 import {
   createProductCore,
   updateProductCore,

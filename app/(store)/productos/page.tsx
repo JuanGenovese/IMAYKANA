@@ -3,8 +3,8 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { categorias } from "@/lib/db/schema";
 import { getAvailableProducts, getFeaturedProducts } from "@/lib/db/schema/queries/queries";
-import { CategoryIconRow } from "@/components/category-icon-row";
-import QuickAddCart from "@/components/quick-add-cart";
+import { CategoryIconRow } from "@/components/store/category-icon-row";
+import QuickAddCart from "@/components/store/quick-add-cart";
 import { cn } from "@/lib/utils";
 
 export const metadata = {

@@ -8,7 +8,7 @@ import {
   estados,
   type ProductoConRelaciones
 } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 
 // Helper interno para obtener o crear la relación Talle x Categoría
 async function getOrCreateTalleXCategoria(
@@ -220,4 +220,23 @@ export async function updateProductCore(id: number, data: ProductPayload) {
 export async function deleteProductCore(id: number) {
   // La eliminación de imágenes se hace por cascada a nivel DB
   await db.delete(productos).where(eq(productos.id, id));
+}
+
+export async function getProductsByIdsCore(ids: number[]): Promise<ProductoConRelaciones[]> {
+  const validIds = ids.filter((id) => !isNaN(id));
+  if (validIds.length === 0) return [];
+
+  return (await db.query.productos.findMany({
+    where: inArray(productos.id, validIds),
+    with: {
+      imagenes: true,
+      talleXCategoria: {
+        with: {
+          talle: true,
+          categoria: true,
+        },
+      },
+      estado: true,
+    },
+  })) as ProductoConRelaciones[];
 }

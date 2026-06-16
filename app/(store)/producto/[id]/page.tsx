@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 
-import { ProductDetailClient } from "@/components/product-detail-client";
+import { ProductDetailClient } from "@/components/store/product-detail-client";
 import { Button } from "@/components/ui/button";
 import { getProductById } from "@/lib/db/schema/queries/queries";
 
