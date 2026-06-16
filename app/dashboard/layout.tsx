@@ -1,12 +1,42 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { obtenerUsuarioPorId } from "@/actions/usuarios";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Si no está autenticado en Supabase, va al login
+    if (!user) {
+        redirect("/login");
+    }
+
+    // Verificar si el usuario existe en la base de datos local
+    const userProfile = await obtenerUsuarioPorId(user.id);
+    if (!userProfile.success || !userProfile.usuario) {
+        // Redirigir al endpoint de logout para limpiar la sesión y cookies
+        redirect("/api/auth/logout");
+    }
+
+    const rol = userProfile.usuario.rol.toLowerCase();
+
+    // Si el rol es cliente, redirigir a la tienda
+    if (rol === "cliente") {
+        redirect("/productos");
+    }
+
+    // Por seguridad, si no es administrador ni vendedor, denegar el acceso al dashboard
+    if (rol !== "admin" && rol !== "vendedor") {
+        redirect("/productos");
+    }
+
     return (
         <div className="relative flex min-h-screen flex-col">
             {/* Navbar superior fija */}
