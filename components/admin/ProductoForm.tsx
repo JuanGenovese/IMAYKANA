@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { crearProducto, actualizarProducto } from "@/actions/admin/productos";
+import { crearProducto, actualizarProducto } from "@/actions/productos";
 import { type ProductoValues, productoSchema, type ProductoFormProps } from "@/components/admin/Schemas/ProductSchema";
 import { Field, inputCls } from "@/components/admin/Field";
 import { ImageUploader } from "@/components/admin/ImageUploader";

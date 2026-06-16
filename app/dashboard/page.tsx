@@ -9,8 +9,8 @@ async function getStats() {
   const result = await db
     .select({
       total: sql<number>`count(${productos.id})`,
-      disponibles: sql<number>`count(${productos.id}) filter (where ${estados.estado} = 'AVAILABLE')`,
-      vendidos: sql<number>`count(${productos.id}) filter (where ${estados.estado} = 'SOLD')`,
+      disponibles: sql<number>`count(${productos.id}) filter (where ${estados.estado} = 'Disponible')`,
+      vendidos: sql<number>`count(${productos.id}) filter (where ${estados.estado} = 'Vendido')`,
     })
     .from(productos)
     .leftJoin(estados, eq(productos.idEstado, estados.id));

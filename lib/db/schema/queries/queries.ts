@@ -1,67 +1,24 @@
-import { eq } from "drizzle-orm";
-import { db } from "../../index";
-import { productos, estados } from "..";
 import { type ProductoConRelaciones } from "./Interface";
 
 
+import {
+  getProductByIdCore,
+  getAvailableProductsCore,
+  getFeaturedProductsCore
+} from "../../../services/productosCore";
+
 export async function getAvailableProducts(): Promise<ProductoConRelaciones[]> {
-  return (await db.query.productos.findMany({
-    where: (productos, { eq }) => eq(
-      productos.idEstado,
-      db
-        .select({ id: estados.id })
-        .from(estados)
-        .where(eq(estados.estado, "Disponible"))
-    ),
-    orderBy: (productos, { desc }) => [desc(productos.id)],
-    with: {
-      imagenes: true,
-      talleXCategoria: {
-        with: {
-          talle: true,
-          categoria: true,
-        },
-      },
-      estado: true,
-    },
-  })) as ProductoConRelaciones[];
+  return await getAvailableProductsCore();
 }
 
 
 export async function getFeaturedProducts(limit?: number): Promise<ProductoConRelaciones[]> {
-  return (await db.query.productos.findMany({
-    where: (productos, { eq }) => eq(productos.destacado, true),
-    orderBy: (productos, { desc }) => [desc(productos.id)],
-    limit,
-    with: {
-      imagenes: true,
-      talleXCategoria: {
-        with: {
-          talle: true,
-          categoria: true,
-        },
-      },
-      estado: true,
-    },
-  })) as ProductoConRelaciones[];
+  return await getFeaturedProductsCore(limit);
 }
 
 
 export async function getProductById(id: number): Promise<ProductoConRelaciones | null> {
-  const result = await db.query.productos.findFirst({
-    where: eq(productos.id, id),
-    with: {
-      imagenes: true,
-      talleXCategoria: {
-        with: {
-          talle: true,
-          categoria: true,
-        },
-      },
-      estado: true,
-    },
-  });
-  return (result as ProductoConRelaciones) ?? null;
+  return await getProductByIdCore(id);
 }
 
 

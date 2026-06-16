@@ -17,15 +17,15 @@ import Image from "next/image";
 import { EliminarProductoButton } from "./EliminarProductoButton";
 
 const statusLabel: Record<string, string> = {
-  AVAILABLE: "Disponible",
-  RESERVED: "Reservado",
-  SOLD: "Vendido",
+  Disponible: "Disponible",
+  Reservado: "Reservado",
+  Vendido: "Vendido",
 };
 
 const statusColors: Record<string, string> = {
-  AVAILABLE: "bg-green-100 text-green-700",
-  RESERVED: "bg-yellow-100 text-yellow-700",
-  SOLD: "bg-gray-100 text-gray-500",
+  Disponible: "bg-green-100 text-green-700",
+  Reservado: "bg-yellow-100 text-yellow-700",
+  Vendido: "bg-gray-100 text-gray-500",
 };
 
 const columns: ColumnDef<ProductoConRelaciones>[] = [
@@ -85,7 +85,7 @@ const columns: ColumnDef<ProductoConRelaciones>[] = [
     accessorKey: "estado.estado",
     header: "Estado",
     cell: ({ row }) => {
-      const s = row.original.estado?.estado ?? "AVAILABLE";
+      const s = row.original.estado?.estado ?? "Disponible";
       return (
         <span
           className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[s] ?? "bg-gray-100 text-gray-600"}`}
@@ -238,7 +238,7 @@ export function ProductosDataTable({
           table.getRowModel().rows.map((row) => {
             const p = row.original;
             const photo = p.imagenes?.[0]?.url;
-            const s = p.estado?.estado ?? "AVAILABLE";
+            const s = p.estado?.estado ?? "Disponible";
             return (
               <div
                 key={row.id}
