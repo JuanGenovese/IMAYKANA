@@ -13,7 +13,7 @@ import { useCart } from "@/hooks/use-cart";
 import { getProductsByIdsCore as getProductsByIds } from "@/lib/services/productosCore";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import type { ResolvedCartItem, Indice } from "./Types";
+import type { ResolvedCartItem, Indice } from "./types";
 
 export default function CartPage() {
   const [isLoading, setIsLoading] = useState(true);
