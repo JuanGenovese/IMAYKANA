@@ -1,5 +1,5 @@
 import { Hero } from "@/app/(store)/(HomePage)/sections/Hero";
-import { Destacados } from "@/app/(store)/(HomePage)/sections/Destacados/Destacados";
+import { Destacados } from "@/app/(store)/(HomePage)/sections/Destacados";
 import { LaMarca } from "@/app/(store)/(HomePage)/sections/LaMarca";
 import { ComoComprar } from "@/app/(store)/(HomePage)/sections/ComoComprar";
 

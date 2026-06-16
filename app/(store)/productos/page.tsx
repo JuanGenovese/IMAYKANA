@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { categorias } from "@/lib/db/schema";
-import { getAvailableProducts, getFeaturedProducts } from "@/lib/db/schema/queries/queries";
+import { getAvailableProducts, getFeaturedProducts } from "@/lib/services/productosCore";
 import { CategoryIconRow } from "@/components/store/category-icon-row";
 import QuickAddCart from "@/components/store/quick-add-cart";
 import { cn } from "@/lib/utils";

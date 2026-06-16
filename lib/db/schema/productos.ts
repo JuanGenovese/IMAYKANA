@@ -4,6 +4,11 @@ import { tallesXCategoria } from "./talles-x-categoria";
 import { transacciones } from "./transacciones";
 import { estados } from "./estados";
 import { imagenes } from "./imagenes";
+import type { Imagen } from "./imagenes";
+import type { TalleXCategoria } from "./talles-x-categoria";
+import type { Talle } from "./talles";
+import type { Categoria } from "./categorias";
+import type { Estado } from "./estados";
 
 export const productos = pgTable("productos", {
   id: serial("id").primaryKey(),
@@ -44,3 +49,12 @@ export const productosRelations = relations(productos, ({ one, many }) => ({
 
 export type Producto = typeof productos.$inferSelect;
 export type NewProducto = typeof productos.$inferInsert;
+
+export type ProductoConRelaciones = Producto & {
+  imagenes: Imagen[];
+  talleXCategoria: TalleXCategoria & {
+    talle: Talle;
+    categoria: Categoria;
+  };
+  estado: Estado;
+};

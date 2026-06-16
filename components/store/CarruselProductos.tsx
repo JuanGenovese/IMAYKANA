@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import type { ProductoConRelaciones } from "@/lib/db/schema/queries/Interface";
+import type { ProductoConRelaciones } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 

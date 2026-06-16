@@ -240,3 +240,11 @@ export async function getProductsByIdsCore(ids: number[]): Promise<ProductoConRe
     },
   })) as ProductoConRelaciones[];
 }
+
+export {
+  getAvailableProductsCore as getAvailableProducts,
+  getFeaturedProductsCore as getFeaturedProducts,
+  getProductByIdCore as getProductById,
+  getProductsByIdsCore as getProductsByIds
+};
+

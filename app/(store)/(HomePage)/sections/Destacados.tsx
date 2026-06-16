@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { ProductosCarrusel } from "@/components/store/CarruselProductos";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getFeaturedProducts } from "@/lib/db/schema/queries/queries";
+import { getFeaturedProducts } from "@/lib/services/productosCore";
 
 export async function Destacados() {
   const products = await getFeaturedProducts();
