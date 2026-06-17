@@ -340,6 +340,9 @@ export async function getFormMetadata() {
       categoria: true,
     },
   });
+  const featuredProds = await db.query.productos.findMany({
+    where: (productos, { eq }) => eq(productos.destacado, true),
+  });
 
   return {
     categories: allCategories.map((c) => c.categoria),
@@ -347,6 +350,11 @@ export async function getFormMetadata() {
     categorySizes: allTallesXCategoria.map((tc) => ({
       category: tc.categoria.categoria,
       size: tc.talle.talle,
+    })),
+    featuredProducts: featuredProds.map((p) => ({
+      id: p.id,
+      nombre: p.nombre,
+      destacadoPos: p.destacadoPos,
     })),
   };
 }

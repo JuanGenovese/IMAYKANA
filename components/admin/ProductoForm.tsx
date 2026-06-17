@@ -16,6 +16,7 @@ export interface FormMetadata {
   categories: string[];
   statuses: string[];
   categorySizes: Array<{ category: string; size: string }>;
+  featuredProducts?: Array<{ id: number; nombre: string; destacadoPos: number | null }>;
 }
 
 export interface ProductoFormProps {
@@ -30,6 +31,8 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
   const [photoUrls, setPhotoUrls] = useState<string[]>(
     producto?.imagenes?.map((img) => img.url) ?? [],
   );
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<ProductoFormValues | null>(null);
 
   const {
     register,
@@ -58,6 +61,12 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
   const watchFeatured = watch("featured");
   const watchFeaturedPos = watch("featuredPos");
 
+  const conflictingProduct = watchFeatured && watchFeaturedPos
+    ? metadata.featuredProducts?.find(
+        (p) => p.destacadoPos === Number(watchFeaturedPos) && p.id !== producto?.id
+      )
+    : null;
+
   // Resetear el talle si deja de estar en la categoría elegida
   useEffect(() => {
     if (watchCategory) {
@@ -75,6 +84,20 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
     .map((cs) => cs.size);
 
   const onSubmit = (data: ProductoFormValues) => {
+    const parsedPos = data.featured && data.featuredPos ? Number(data.featuredPos) : null;
+    const hasConflict = parsedPos !== null && metadata.featuredProducts?.some(
+      (p) => p.destacadoPos === parsedPos && p.id !== producto?.id
+    );
+
+    if (hasConflict) {
+      setPendingFormData(data);
+      setShowConfirmModal(true);
+    } else {
+      executeSubmit(data);
+    }
+  };
+
+  const executeSubmit = (data: ProductoFormValues) => {
     startTransition(async () => {
       const payload = { ...data, photoUrls };
       const result = producto
@@ -94,7 +117,8 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       {/* Campos de texto */}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Nombre" error={errors.name?.message}>
@@ -204,6 +228,11 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
                   <option value="5">5 - Lateral Destacado (Columna 3)</option>
                 </select>
               </Field>
+              {conflictingProduct && (
+                <p className="mt-2 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2.5 animate-in fade-in duration-205">
+                  ⚠️ Atendé: La posición {watchFeaturedPos} ya está ocupada por el producto <strong>&quot;{conflictingProduct.nombre}&quot;</strong>. Si guardás, ese producto dejará de estar destacado.
+                </p>
+              )}
             </div>
             
             {/* Visual Bento Grid Preview Skeleton */}
@@ -315,5 +344,51 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
         </button>
       </div>
     </form>
+
+    {showConfirmModal && pendingFormData && (() => {
+      const confProduct = metadata.featuredProducts?.find(
+        (p) => p.destacadoPos === Number(pendingFormData.featuredPos)
+      );
+      return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-gray-150 animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-gray-950 flex items-center gap-2">
+              <span className="text-amber-500 text-xl">⚠️</span> Confirmar reemplazo
+            </h3>
+            <p className="mt-3 text-sm text-gray-650 leading-relaxed font-medium">
+              El producto <strong>&quot;{confProduct?.nombre}&quot;</strong> actualmente ocupa la <strong>Posición {pendingFormData.featuredPos}</strong> en el Bento Grid.
+            </p>
+            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+              Al confirmar, este producto tomará ese lugar y el anterior dejará de estar destacado en el grid. ¿Querés continuar?
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setPendingFormData(null);
+                }}
+                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  if (pendingFormData) {
+                    executeSubmit(pendingFormData);
+                  }
+                }}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition shadow-sm"
+              >
+                Confirmar y Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    })()}
+    </>
   );
 }
