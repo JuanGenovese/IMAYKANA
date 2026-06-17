@@ -144,14 +144,17 @@ export function BentoGridHero({ featured }: BentoGridHeroProps) {
                 Destacado
               </span>
               <Link href={`/producto/${f.id}`} className="block flex-1">
-                <div className="relative aspect-[16/10] w-full bg-neutral-50 dark:bg-zinc-900 rounded-2xl overflow-hidden mb-3">
+                <div className={cn(
+                  "relative w-full bg-neutral-50 dark:bg-zinc-900 rounded-2xl overflow-hidden mb-3",
+                  featured.length === 1 ? "aspect-video md:aspect-[2.8/1]" : "aspect-[16/10]"
+                )}>
                   {f.imagenes?.[0]?.url ? (
                     <Image
                       src={f.imagenes[0].url}
                       alt={f.nombre}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, 33vw"
+                      sizes={featured.length === 1 ? "100vw" : "(max-width: 768px) 100vw, 33vw"}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-muted">
