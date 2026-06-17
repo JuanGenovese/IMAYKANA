@@ -4,7 +4,7 @@ export function LaMarca() {
   return (
     <section
       id="marca"
-      className="my-[40vh] flex min-h-fit md:min-h-[calc(100svh-256px)] md:h-[calc(100svh-256px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-20 md:scroll-mt-40"
+      className="mt-[10vh] flex min-h-fit md:min-h-[calc(100svh-256px)] md:h-[calc(100svh-256px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-20 md:scroll-mt-40"
     >
       <div className="w-full max-w-6xl px-4">
         <div className="grid gap-6 md:gap-10 lg:grid-cols-2 lg:items-center">

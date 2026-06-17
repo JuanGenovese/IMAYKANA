@@ -7,7 +7,8 @@ import { productoSchema } from "@/lib/schemas/productos";
 import {
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getProductsByIds
 } from "@/lib/services/productosCore";
 
 async function verifyAdmin() {
@@ -79,5 +80,15 @@ export async function eliminarProducto(id: number) {
   } catch (error) {
     console.error("Error al eliminar producto:", error);
     return { error: "No se pudo eliminar el producto." };
+  }
+}
+
+export async function obtenerProductosPorIds(ids: number[]) {
+  try {
+    const products = await getProductsByIds(ids);
+    return { success: true, products };
+  } catch (error) {
+    console.error("Error al obtener productos por ids:", error);
+    return { success: false, error: "No se pudieron cargar los productos." };
   }
 }

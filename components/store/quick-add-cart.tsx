@@ -40,7 +40,7 @@ export default function QuickAddCart({ productId, size, className }: QuickAddCar
         "w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow transition-all duration-300 active:scale-90",
         added
           ? "bg-emerald-600 text-white hover:bg-emerald-600 cursor-default scale-105"
-          : "bg-emerald-500 text-white hover:bg-emerald-600 hover:scale-105",
+          : "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105",
         className
       )}
       aria-label="Agregar al carrito"

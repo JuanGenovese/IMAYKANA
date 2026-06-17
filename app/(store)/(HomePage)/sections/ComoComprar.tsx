@@ -4,7 +4,7 @@ export function ComoComprar() {
   return (
     <section
       id="como-comprar"
-      className="my-[40vh] flex min-h-fit md:min-h-[calc(100svh-192px)] md:h-[calc(100svh-192px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-20 md:scroll-mt-32"
+      className="my-[5vh] flex min-h-fit md:min-h-[calc(100svh-192px)] md:h-[calc(100svh-192px)] w-full items-center justify-center bg-transparent py-8 sm:py-12 md:py-0 scroll-mt-20 md:scroll-mt-32"
     >
       <div className="w-full max-w-6xl px-4">
         <div className="rounded-2xl sm:rounded-3xl border bg-card/80 p-5 sm:p-8 md:p-16 backdrop-blur-md shadow-2xl">

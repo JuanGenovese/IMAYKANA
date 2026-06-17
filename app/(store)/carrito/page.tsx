@@ -2,51 +2,60 @@
 
 import * as React from "react";
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Trash2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
-import { getProductsByIdsCore as getProductsByIds } from "@/lib/services/productosCore";
+import { obtenerProductosPorIds } from "@/actions/productos";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { CartItemCard } from "@/components/store/cart-item-card";
+import { CartSummary } from "@/components/store/cart-summary";
+import { CartSkeleton } from "@/components/store/cart-skeleton";
 import type { ResolvedCartItem, Indice } from "./types";
 
 export default function CartPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const { items, setCantidad, eliminarItem, limpiar, count } = useCart();
+  const { items, eliminarItem, limpiar, count } = useCart();
   const [resolvedProducts, setResolvedProducts] = useState<Indice>({});
+
+  const productIdsStr = JSON.stringify(
+    Array.from(
+      new Set(
+        items.map((item) => Number(item.productId)).filter((id) => !isNaN(id)),
+      ),
+    ).sort(),
+  );
 
   useEffect(() => {
     const fetchCartProducts = async () => {
-      if (items.length === 0) {
+      const ids: number[] = JSON.parse(productIdsStr);
+      if (ids.length === 0) {
         setIsLoading(false);
         return;
       }
 
       setIsLoading(true);
-      const ids = Array.from(
-        new Set(
-          items.map((item) => Number(item.productId)).filter((id) => !isNaN(id)),
-        ),
-      );
       try {
-        const fetched = await getProductsByIds(ids);
-        const productMap: Indice = {};
-        for (const p of fetched) {
-          productMap[p.id.toString()] = p;
+        const res = await obtenerProductosPorIds(ids);
+        if (res.success && res.products) {
+          const productMap: Indice = {};
+          for (const p of res.products) {
+            productMap[p.id.toString()] = p;
+          }
+          setResolvedProducts(productMap);
         }
-        setResolvedProducts(productMap);
+      } catch (err) {
+        console.error("Error al buscar productos del carrito:", err);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchCartProducts();
-  }, [items]);
+  }, [productIdsStr]);
 
   const resolved = items
     .map((it) => {
@@ -103,11 +112,7 @@ export default function CartPage() {
       <div className="mt-6 sm:mt-8 grid gap-6 lg:grid-cols-[1fr_minmax(280px,360px)]">
         <div className="space-y-4">
           {isLoading && items.length > 0 ? (
-            <Card className="rounded-3xl">
-              <CardContent className="px-6 py-10 text-center text-muted-foreground animate-pulse">
-                Cargando carrito...
-              </CardContent>
-            </Card>
+            <CartSkeleton />
           ) : resolved.length === 0 ? (
             <Card className="rounded-3xl">
               <CardContent className="px-6 py-10 text-center">
@@ -125,126 +130,18 @@ export default function CartPage() {
               </CardContent>
             </Card>
           ) : (
-            resolved.map((it) => {
-              const photo = it.product.imagenes?.[0]?.url;
-              const category = it.product.talleXCategoria?.categoria?.categoria ?? "";
-              const talle = it.product.talleXCategoria?.talle?.talle ?? it.size;
-              return (
-                <Card key={`${it.productId}:${it.size}`} className="rounded-3xl">
-                  <CardContent className="grid gap-4 px-5 py-5 sm:grid-cols-[96px_1fr]">
-                    <div className="relative aspect-[4/5] w-24 overflow-hidden rounded-2xl border bg-card">
-                      {photo ? (
-                        <Image
-                          src={photo}
-                          alt={it.product.nombre}
-                          fill
-                          className="object-cover"
-                          sizes="96px"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                          ---
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="text-sm text-muted-foreground">
-                            {category}
-                          </div>
-                          <div className="text-base font-semibold tracking-tight">
-                            {it.product.nombre}
-                          </div>
-                          <div className="mt-1 text-sm text-muted-foreground">
-                            Talle:{" "}
-                            <span className="text-foreground">{talle}</span>
-                          </div>
-                        </div>
-
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Quitar"
-                        onClick={() => eliminarItem(it.productId, it.size)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon-sm"
-                          onClick={() =>
-                            setCantidad(it.productId, it.size, it.quantity - 1)
-                          }
-                          aria-label="Restar"
-                        >
-                          -
-                        </Button>
-                        <div className="min-w-10 text-center text-sm font-semibold">
-                          {it.quantity}
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon-sm"
-                          onClick={() =>
-                            setCantidad(it.productId, it.size, it.quantity + 1)
-                          }
-                          aria-label="Sumar"
-                        >
-                          +
-                        </Button>
-                      </div>
-
-                      <div className="text-sm font-semibold text-muted-foreground">
-                        Consultar precio
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })
+            resolved.map((it) => (
+              <CartItemCard
+                key={`${it.productId}:${it.size}`}
+                item={it}
+                onEliminar={eliminarItem}
+              />
+            ))
           )}
         </div>
 
         {resolved.length === 0 ? null : (
-          <div className="space-y-4">
-            <Card className="rounded-3xl">
-              <CardContent className="space-y-4 px-6 py-6">
-                <div className="text-sm font-semibold">Resumen</div>
-                <Separator />
-
-                <Button asChild className="w-full">
-                  <a href={buyUrl} target="_blank" rel="noreferrer">
-                    Consultar por WhatsApp
-                  </a>
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={limpiar}
-                  disabled={resolved.length === 0}
-                >
-                  Vaciar carrito
-                </Button>
-
-                <p className="text-xs text-muted-foreground">
-                  El botón abre WhatsApp con un mensaje automático detallando tu
-                  selección.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <CartSummary buyUrl={buyUrl} onLimpiar={limpiar} />
         )}
       </div>
     </main>

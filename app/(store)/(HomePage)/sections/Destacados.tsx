@@ -12,7 +12,7 @@ export async function Destacados() {
   return (
     <section
       id="productos"
-      className="mt-[25vh] mb-[25vh] flex min-h-fit md:min-h-[calc(100svh-160px)] md:h-[calc(100svh-160px)] w-full items-center justify-center bg-transparent relative py-8 sm:py-12 md:py-0 scroll-mt-20 md:scroll-mt-28"
+      className="mt-[10vh] flex min-h-fit md:min-h-[calc(100svh-160px)] md:h-[calc(100svh-160px)] w-full items-center justify-center bg-transparent relative py-8 sm:py-12 md:py-0 scroll-mt-20 md:scroll-mt-28"
     >
       <div className="w-full max-w-6xl px-4">
         <div className="h-[70vh] max-h-[70vh] min-h-[350px] flex flex-col rounded-xl sm:rounded-[2rem] border bg-card/60 p-5 sm:p-5 md:p-8 backdrop-blur-sm">

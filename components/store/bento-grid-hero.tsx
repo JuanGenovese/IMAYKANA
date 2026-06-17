@@ -22,6 +22,9 @@ export function BentoGridHero({ featured }: BentoGridHeroProps) {
               "col-span-1 md:col-span-2 md:row-span-2 aspect-video md:aspect-[14/10]"
             )}
           >
+            <span className="absolute top-6 left-6 bg-primary text-primary-foreground text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full z-20 shadow-sm animate-pulse">
+              Recomendado
+            </span>
             <div className="absolute inset-0 z-0">
               {featured[0].imagenes?.[0]?.url ? (
                 <Image
@@ -87,9 +90,6 @@ export function BentoGridHero({ featured }: BentoGridHeroProps) {
           </div>
 
           <div className="col-span-1 md:col-span-1 md:row-span-2 flex flex-col border bg-card rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 p-4 relative group">
-            <span className="absolute top-6 left-6 bg-emerald-500 text-white text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full z-20 shadow-sm animate-pulse">
-              Recomendado
-            </span>
             <Link href={`/producto/${featured[3].id}`} className="block flex-1">
               <div className="relative aspect-[4/5] w-full bg-neutral-50 dark:bg-zinc-900 rounded-2xl overflow-hidden mb-3">
                 {featured[3].imagenes?.[0]?.url ? (
@@ -121,10 +121,6 @@ export function BentoGridHero({ featured }: BentoGridHeroProps) {
               <span className="text-xs font-semibold text-foreground">
                 Consultar precio
               </span>
-              <QuickAddCart
-                productId={featured[3].id.toString()}
-                size={featured[3].talleXCategoria?.talle?.talle || "Único"}
-              />
             </div>
           </div>
         </div>
