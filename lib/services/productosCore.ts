@@ -206,10 +206,11 @@ interface ProductPayload {
   photoUrls: string[];
   featured: boolean;
   featuredPos?: string | null;
+  price: number;
 }
 
 export async function createProductCore(data: ProductPayload) {
-  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured, featuredPos } = data;
+  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured, featuredPos, price } = data;
   const parsedPos = featured && featuredPos ? parseInt(featuredPos, 10) : null;
 
   const result = await db.transaction(async (tx) => {
@@ -240,6 +241,7 @@ export async function createProductCore(data: ProductPayload) {
       color,
       descripcion: descriptionSummary,
       medidasEspecificas: specificMeasurements,
+      precio: price,
     }).returning();
 
     // 4. Insertar las imágenes
@@ -259,7 +261,7 @@ export async function createProductCore(data: ProductPayload) {
 }
 
 export async function updateProductCore(id: number, data: ProductPayload) {
-  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured, featuredPos } = data;
+  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured, featuredPos, price } = data;
   const parsedPos = featured && featuredPos ? parseInt(featuredPos, 10) : null;
 
   await db.transaction(async (tx) => {
@@ -292,6 +294,7 @@ export async function updateProductCore(id: number, data: ProductPayload) {
       color,
       descripcion: descriptionSummary,
       medidasEspecificas: specificMeasurements,
+      precio: price,
     }).where(eq(productos.id, id));
 
     // 4. Actualizar imágenes (borrar existentes e insertar nuevas)

@@ -1,7 +1,42 @@
 "use client";
 import * as React from "react";
-import type { CartState } from "@/app/(store)/carrito/types";
-import type { CartContextValue } from "@/app/(store)/carrito/types";
+import type { ProductoConRelaciones as Product } from "@/lib/db/schema";
+
+export type ResolvedCartItem = {
+  productId: string;
+  size: string;
+  quantity: number;
+  product: Product;
+};
+
+export type CartItem = {
+  productId: string;
+  size: string;
+  quantity: number;
+  price?: number;
+};
+
+export type CartState = {
+  items: CartItem[];
+};
+
+export type CartContextValue = CartState & {
+  addItem: (item: CartItem) => void;
+  eliminarItem: (productId: string, size: CartItem["size"]) => void;
+  setCantidad: (
+    productId: string,
+    size: CartItem["size"],
+    quantity: number,
+  ) => void;
+  limpiar: () => void;
+  count: number;
+  isOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
+  toggleCart: () => void;
+};
+
+export type Indice = Record<string, Product>;
 
 const CART_STORAGE_KEY = "imaykana_cart_v1";
 
@@ -30,6 +65,7 @@ function saveCart(state: CartState) {
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = React.useState<CartState>({ items: [] });
+  const [isOpen, setIsOpen] = React.useState(false);
   const didHydrate = React.useRef(false);
 
   React.useEffect(() => {
@@ -42,28 +78,32 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     saveCart(state);
   }, [state]);
 
+  const openCart = React.useCallback(() => setIsOpen(true), []);
+  const closeCart = React.useCallback(() => setIsOpen(false), []);
+  const toggleCart = React.useCallback(() => setIsOpen((prev) => !prev), []);
+
   const value = React.useMemo<CartContextValue>(() => {
-    const count = state.items.reduce((acc, it) => acc + it.quantity, 0);
+    const count = state.items.length;
 
     return {
       ...state,
       count,
+      isOpen,
+      openCart,
+      closeCart,
+      toggleCart,
       addItem: (item) => {
         setState((prev) => {
-          const next = [...prev.items];
-          const idx = next.findIndex(
+          const idx = prev.items.findIndex(
             (i) => i.productId === item.productId && i.size === item.size,
           );
           if (idx >= 0) {
-            next[idx] = {
-              ...next[idx],
-              quantity: next[idx].quantity + item.quantity,
-            };
-          } else {
-            next.push(item);
+            return prev;
           }
+          const next = [...prev.items, item];
           return { items: next };
         });
+        setIsOpen(true);
       },
       eliminarItem: (productId, size) => {
         setState((prev) => ({
@@ -86,7 +126,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       },
       limpiar: () => setState({ items: [] }),
     };
-  }, [state]);
+  }, [state, isOpen, openCart, closeCart, toggleCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

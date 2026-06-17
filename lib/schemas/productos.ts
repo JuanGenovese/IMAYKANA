@@ -11,6 +11,7 @@ export const productoFormSchema = z.object({
   status: z.string().min(1, "El estado es obligatorio"),
   featured: z.boolean(),
   featuredPos: z.string().optional().nullable(),
+  price: z.number().min(0, "El precio debe ser mayor o igual a 0"),
 });
 
 export const productoSchema = productoFormSchema.extend({

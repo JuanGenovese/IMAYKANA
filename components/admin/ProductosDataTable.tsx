@@ -128,6 +128,18 @@ export function ProductosDataTable({
     },
     { accessorKey: "color", header: "Color" },
     {
+      accessorKey: "precio",
+      header: "Precio",
+      cell: ({ row }) => {
+        const precio = row.original.precio ?? 0;
+        return (
+          <span className="font-semibold text-gray-900">
+            ${precio.toLocaleString("es-AR")}
+          </span>
+        );
+      },
+    },
+    {
       accessorKey: "estado.estado",
       header: "Estado",
       cell: ({ row }) => {

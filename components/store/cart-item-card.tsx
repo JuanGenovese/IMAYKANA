@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { type ResolvedCartItem } from "@/app/(store)/carrito/types";
+import { type ResolvedCartItem } from "@/components/providers/cart-provider";
 
 interface CartItemCardProps {
   item: ResolvedCartItem;

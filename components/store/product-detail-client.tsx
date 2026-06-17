@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { Check, Heart, ShoppingCart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,12 +14,15 @@ import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 export function ProductDetailClient({ product }: { product: ProductoConRelaciones }) {
-  const { addItem } = useCart();
+  const { addItem, items, openCart } = useCart();
 
   const [activeImage, setActiveImage] = React.useState(0);
   const [justAdded, setJustAdded] = React.useState(false);
 
   const talle = product.talleXCategoria?.talle?.talle ?? "";
+  const isAlreadyInCart = items.some(
+    (i) => i.productId === product.id.toString() && i.size === talle
+  );
   const categoria = product.talleXCategoria?.categoria?.categoria ?? "";
   const photoUrls = product.imagenes?.map((img) => img.url) ?? [];
 
@@ -154,8 +156,9 @@ export function ProductDetailClient({ product }: { product: ProductoConRelacione
               variant="outline"
               className="gap-2 h-11 sm:h-10 flex-1 sm:flex-none"
               onClick={onAddToCart}
+              disabled={justAdded || isAlreadyInCart}
             >
-              {justAdded ? (
+              {justAdded || isAlreadyInCart ? (
                 <>
                   Agregado
                   <Check className="size-4" />
@@ -168,8 +171,13 @@ export function ProductDetailClient({ product }: { product: ProductoConRelacione
               )}
             </Button>
 
-            <Button asChild variant="ghost" className="h-11 sm:h-10">
-              <Link href="/carrito">Ver carrito</Link>
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-11 sm:h-10"
+              onClick={openCart}
+            >
+              Ver carrito
             </Button>
           </div>
         </div>

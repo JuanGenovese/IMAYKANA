@@ -15,7 +15,7 @@ import { useCart } from "@/hooks/use-cart";
 import { createSupabaseClient } from "@/lib/supabase/client";
 
 export function SiteHeader() {
-  const { count } = useCart();
+  const { count, toggleCart } = useCart();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +71,7 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground md:flex">
           <Link
-            href="/#productos"
+            href="/productos"
             className="hover:text-foreground transition-colors"
           >
             Productos
@@ -92,22 +92,21 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-1 sm:gap-2">
           <Button
-            asChild
+            type="button"
             variant="ghost"
             size="icon"
+            onClick={toggleCart}
             className="h-9 w-9 sm:h-10 sm:w-10"
             aria-label="Carrito"
           >
-            <Link href="/carrito">
-              <span className="relative">
-                <ShoppingCart className="size-4 sm:size-5" />
-                {count > 0 ? (
-                  <span className="absolute -right-1 -top-1 sm:-right-2 sm:-top-2 inline-flex min-w-4 sm:min-w-5 items-center justify-center rounded-full bg-primary px-1 sm:px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold text-primary-foreground">
-                    {count > 99 ? "99+" : count}
-                  </span>
-                ) : null}
-              </span>
-            </Link>
+            <span className="relative">
+              <ShoppingCart className="size-4 sm:size-5" />
+              {count > 0 ? (
+                <span className="absolute -right-1 -top-1 sm:-right-2 sm:-top-2 inline-flex min-w-4 sm:min-w-5 items-center justify-center rounded-full bg-primary px-1 sm:px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold text-primary-foreground">
+                  {count > 99 ? "99+" : count}
+                </span>
+              ) : null}
+            </span>
           </Button>
 
           {!loading && user ? (

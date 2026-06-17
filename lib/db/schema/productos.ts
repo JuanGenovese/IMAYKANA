@@ -30,6 +30,7 @@ export const productos = pgTable("productos", {
   medidasEspecificas: varchar("medidas_especificas", { length: 500 })
     .notNull()
     .default(""),
+  precio: integer("precio").notNull().default(0),
 });
 
 export const productosRelations = relations(productos, ({ one, many }) => ({

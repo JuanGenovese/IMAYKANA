@@ -53,6 +53,7 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
       status: producto?.estado?.estado ?? "Disponible",
       featured: producto?.destacado ?? false,
       featuredPos: producto?.destacadoPos ? String(producto.destacadoPos) : "",
+      price: producto?.precio ?? 0,
     },
   });
 
@@ -196,6 +197,16 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
               </option>
             ))}
           </select>
+        </Field>
+
+        <Field label="Precio" error={errors.price?.message}>
+          <input
+            type="number"
+            {...register("price", { valueAsNumber: true })}
+            disabled={isLoading}
+            placeholder="0"
+            className={inputCls}
+          />
         </Field>
 
         <div className="flex items-center gap-2 sm:col-span-2 pt-2">
