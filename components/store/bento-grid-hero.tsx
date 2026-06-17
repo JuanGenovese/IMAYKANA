@@ -15,7 +15,6 @@ export function BentoGridHero({ featured }: BentoGridHeroProps) {
     <div className="mb-10">
       {featured.length >= 4 ? (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Card 1: Banner Grande (spans 2 cols, 2 rows en desktop) */}
           <Link
             href={`/producto/${featured[0].id}`}
             className={cn(
@@ -54,7 +53,6 @@ export function BentoGridHero({ featured }: BentoGridHeroProps) {
             </div>
           </Link>
 
-          {/* Columna central: Dos horizontales apiladas */}
           <div className="col-span-1 md:col-span-1 flex flex-col gap-4">
             {[featured[1], featured[2]].map((f) => f && (
               <Link
@@ -88,7 +86,6 @@ export function BentoGridHero({ featured }: BentoGridHeroProps) {
             ))}
           </div>
 
-          {/* Card 4: Derecha Vertical Recomendado */}
           <div className="col-span-1 md:col-span-1 md:row-span-2 flex flex-col border bg-card rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 p-4 relative group">
             <span className="absolute top-6 left-6 bg-emerald-500 text-white text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full z-20 shadow-sm animate-pulse">
               Recomendado
@@ -132,7 +129,6 @@ export function BentoGridHero({ featured }: BentoGridHeroProps) {
           </div>
         </div>
       ) : (
-        /* Layout dinámico para cuando hay menos de 4 destacados */
         <div className={cn(
           "grid gap-4",
           featured.length === 1 && "grid-cols-1",
