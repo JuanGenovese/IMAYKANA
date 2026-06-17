@@ -90,14 +90,24 @@ export function ProductosDataTable({
     {
       accessorKey: "nombre",
       header: "Nombre",
-      cell: ({ row }) => (
-        <div className="flex flex-col">
-          <span className="font-medium text-gray-900">{row.original.nombre}</span>
-          <span className="text-xs text-gray-500 lg:hidden">
-            {row.original.talleXCategoria?.categoria?.categoria}
-          </span>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const isFeatured = row.original.destacado;
+        return (
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-gray-900">{row.original.nombre}</span>
+              {isFeatured && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-white border border-white shadow-sm">
+                  Destacado
+                </span>
+              )}
+            </div>
+            <span className="text-xs text-gray-500 lg:hidden">
+              {row.original.talleXCategoria?.categoria?.categoria}
+            </span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "talleXCategoria.categoria.categoria",
@@ -192,7 +202,7 @@ export function ProductosDataTable({
         />
         <button
           onClick={openNewProductModal}
-          className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 transition whitespace-nowrap"
+          className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition whitespace-nowrap shadow-sm"
         >
           + Nuevo Producto
         </button>
@@ -294,7 +304,7 @@ export function ProductosDataTable({
                       {statusLabel[s] ?? s}
                     </span>
                   </div>
-                  
+
                   <span className="text-xs text-gray-500 mt-0.5">
                     {p.talleXCategoria?.categoria?.categoria || "Sin categoría"}
                   </span>

@@ -207,7 +207,7 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-700 disabled:opacity-60 transition"
+          className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60 transition shadow-sm"
         >
           {isLoading
             ? "Guardando..."
