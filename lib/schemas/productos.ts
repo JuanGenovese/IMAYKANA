@@ -10,6 +10,7 @@ export const productoFormSchema = z.object({
   specificMeasurements: z.string().regex(/\d+\s*cm/i, "Debe especificar al menos una medida en 'cm' (ej: '70cm' o 'Largo 70cm')"),
   status: z.string().min(1, "El estado es obligatorio"),
   featured: z.boolean(),
+  featuredPos: z.string().optional().nullable(),
 });
 
 export const productoSchema = productoFormSchema.extend({

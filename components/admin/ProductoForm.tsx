@@ -49,11 +49,14 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
       specificMeasurements: producto?.medidasEspecificas ?? "",
       status: producto?.estado?.estado ?? "Disponible",
       featured: producto?.destacado ?? false,
+      featuredPos: producto?.destacadoPos ? String(producto.destacadoPos) : "",
     },
   });
 
   const isLoading = isSubmitting || isPending;
   const watchCategory = watch("category");
+  const watchFeatured = watch("featured");
+  const watchFeaturedPos = watch("featuredPos");
 
   // Resetear el talle si deja de estar en la categoría elegida
   useEffect(() => {
@@ -177,12 +180,99 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
             id="featured"
             {...register("featured")}
             disabled={isLoading}
-            className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
           />
           <label htmlFor="featured" className="text-sm font-medium text-gray-700 select-none">
-            Destacar producto (se mostrará en la sección de destacados de la tienda)
+            Destacar producto (se mostrará en el Bento Grid de la tienda)
           </label>
         </div>
+
+        {watchFeatured && (
+          <div className="sm:col-span-2 border border-gray-200 rounded-2xl p-4 bg-gray-50 flex flex-col md:flex-row gap-4 items-center justify-between transition-all duration-200">
+            <div className="flex-1 w-full">
+              <Field label="Posición en el Bento Grid" error={errors.featuredPos?.message}>
+                <select
+                  {...register("featuredPos")}
+                  disabled={isLoading}
+                  className={inputCls}
+                >
+                  <option value="">Seleccionar posición...</option>
+                  <option value="1">1 - Principal Grande (Columna 1)</option>
+                  <option value="2">2 - Superior Apilado (Columna 2 - Fila 1)</option>
+                  <option value="3">3 - Medio Apilado (Columna 2 - Fila 2)</option>
+                  <option value="4">4 - Inferior Apilado (Columna 2 - Fila 3)</option>
+                  <option value="5">5 - Lateral Destacado (Columna 3)</option>
+                </select>
+              </Field>
+            </div>
+            
+            {/* Visual Bento Grid Preview Skeleton */}
+            <div className="flex flex-col items-center gap-1.5 shrink-0 w-full md:w-auto">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                Ubicación en Bento Grid
+              </span>
+              <div className="w-40 h-28 grid grid-cols-4 gap-1 bg-white p-1.5 rounded-xl border border-gray-200 shadow-inner">
+                {/* Slot 1: Principal grande (Columna 1) */}
+                <div 
+                  className={cn(
+                    "col-span-2 row-span-3 rounded-md border transition-all duration-300 flex items-center justify-center text-[10px] font-bold",
+                    watchFeaturedPos === "1" 
+                      ? "bg-primary border-primary text-primary-foreground shadow-sm shadow-primary/20 scale-[1.02]" 
+                      : "bg-gray-100 border-gray-200 text-gray-400"
+                  )}
+                >
+                  1
+                </div>
+                
+                {/* Column 2 (middle 3 stacked slots) */}
+                <div className="col-span-1 flex flex-col gap-1">
+                  <div 
+                    className={cn(
+                      "flex-1 rounded-md border transition-all duration-300 flex items-center justify-center text-[8px] font-bold",
+                      watchFeaturedPos === "2" 
+                        ? "bg-primary border-primary text-primary-foreground shadow-sm shadow-primary/20 scale-[1.03]" 
+                        : "bg-gray-100 border-gray-200 text-gray-400"
+                    )}
+                  >
+                    2
+                  </div>
+                  <div 
+                    className={cn(
+                      "flex-1 rounded-md border transition-all duration-300 flex items-center justify-center text-[8px] font-bold",
+                      watchFeaturedPos === "3" 
+                        ? "bg-primary border-primary text-primary-foreground shadow-sm shadow-primary/20 scale-[1.03]" 
+                        : "bg-gray-100 border-gray-200 text-gray-400"
+                    )}
+                  >
+                    3
+                  </div>
+                  <div 
+                    className={cn(
+                      "flex-1 rounded-md border transition-all duration-300 flex items-center justify-center text-[8px] font-bold",
+                      watchFeaturedPos === "4" 
+                        ? "bg-primary border-primary text-primary-foreground shadow-sm shadow-primary/20 scale-[1.03]" 
+                        : "bg-gray-100 border-gray-200 text-gray-400"
+                    )}
+                  >
+                    4
+                  </div>
+                </div>
+
+                {/* Slot 5: Lateral (Columna 3) */}
+                <div 
+                  className={cn(
+                    "col-span-1 row-span-3 rounded-md border transition-all duration-300 flex items-center justify-center text-[10px] font-bold",
+                    watchFeaturedPos === "5" 
+                      ? "bg-primary border-primary text-primary-foreground shadow-sm shadow-primary/20 scale-[1.02]" 
+                      : "bg-gray-100 border-gray-200 text-gray-400"
+                  )}
+                >
+                  5
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <Field label="Descripción" error={errors.descriptionSummary?.message}>

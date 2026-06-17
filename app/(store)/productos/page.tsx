@@ -26,7 +26,7 @@ export default async function ProductsPage({
       page: currentPage,
       limit,
     }),
-    getFeaturedProducts(4),
+    getFeaturedProducts(),
     getCategories(),
   ]);
 

@@ -154,11 +154,9 @@ export async function getAvailableProductsCore(options?: {
   };
 }
 
-export async function getFeaturedProductsCore(limit?: number): Promise<ProductoConRelaciones[]> {
-  return (await db.query.productos.findMany({
+export async function getFeaturedProductsCore(): Promise<(ProductoConRelaciones | null)[]> {
+  const rawFeatured = (await db.query.productos.findMany({
     where: (productos, { eq }) => eq(productos.destacado, true),
-    orderBy: (productos, { desc }) => [desc(productos.id)],
-    limit,
     with: {
       imagenes: true,
       talleXCategoria: {
@@ -170,6 +168,15 @@ export async function getFeaturedProductsCore(limit?: number): Promise<ProductoC
       estado: true,
     },
   })) as ProductoConRelaciones[];
+
+  const featuredArray: (ProductoConRelaciones | null)[] = Array(5).fill(null);
+  rawFeatured.forEach((prod) => {
+    if (prod.destacadoPos !== null && prod.destacadoPos >= 1 && prod.destacadoPos <= 5) {
+      featuredArray[prod.destacadoPos - 1] = prod;
+    }
+  });
+
+  return featuredArray;
 }
 
 export async function getAllProductsCore(): Promise<ProductoConRelaciones[]> {
@@ -198,10 +205,12 @@ interface ProductPayload {
   status: string;
   photoUrls: string[];
   featured: boolean;
+  featuredPos?: string | null;
 }
 
 export async function createProductCore(data: ProductPayload) {
-  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured } = data;
+  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured, featuredPos } = data;
+  const parsedPos = featured && featuredPos ? parseInt(featuredPos, 10) : null;
 
   const result = await db.transaction(async (tx) => {
     // 1. Obtener ID de relación talle x categoría
@@ -213,10 +222,18 @@ export async function createProductCore(data: ProductPayload) {
     });
     const estadoId = est ? est.id : 1; // Fallback al id 1 si no se encuentra
 
+    // Clear conflict on position (if set)
+    if (parsedPos !== null) {
+      await tx.update(productos)
+        .set({ destacado: false, destacadoPos: null })
+        .where(eq(productos.destacadoPos, parsedPos));
+    }
+
     // 3. Insertar el Producto
     const [productoCreado] = await tx.insert(productos).values({
       nombre: name,
       destacado: featured,
+      destacadoPos: parsedPos,
       idTalleXCategoria: talleXCategoriaId,
       cantidad: 1,
       idEstado: estadoId,
@@ -242,7 +259,8 @@ export async function createProductCore(data: ProductPayload) {
 }
 
 export async function updateProductCore(id: number, data: ProductPayload) {
-  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured } = data;
+  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured, featuredPos } = data;
+  const parsedPos = featured && featuredPos ? parseInt(featuredPos, 10) : null;
 
   await db.transaction(async (tx) => {
     // 1. Obtener ID de relación talle x categoría
@@ -254,10 +272,21 @@ export async function updateProductCore(id: number, data: ProductPayload) {
     });
     const estadoId = est ? est.id : 1;
 
+    // Clear conflict on position (if set)
+    if (parsedPos !== null) {
+      await tx.update(productos)
+        .set({ destacado: false, destacadoPos: null })
+        .where(and(
+          eq(productos.destacadoPos, parsedPos),
+          sql`${productos.id} != ${id}`
+        ));
+    }
+
     // 3. Actualizar el Producto
     await tx.update(productos).set({
       nombre: name,
       destacado: featured,
+      destacadoPos: parsedPos,
       idTalleXCategoria: talleXCategoriaId,
       idEstado: estadoId,
       color,

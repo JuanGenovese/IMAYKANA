@@ -14,6 +14,7 @@ export const productos = pgTable("productos", {
   id: serial("id").primaryKey(),
   nombre: varchar("nombre", { length: 200 }).notNull(),
   destacado: boolean("destacado").notNull().default(false),
+  destacadoPos: integer("destacado_pos"),
   idTalleXCategoria: integer("id_talle_x_categoria")
     .notNull()
     .references(() => tallesXCategoria.id, { onDelete: "restrict" }),

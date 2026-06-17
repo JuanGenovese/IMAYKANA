@@ -4,9 +4,11 @@ import { ProductosCarrusel } from "@/components/store/CarruselProductos";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getFeaturedProducts } from "@/lib/services/productosCore";
+import { type ProductoConRelaciones } from "@/lib/db/schema";
 
 export async function Destacados() {
-  const products = await getFeaturedProducts();
+  const rawProducts = await getFeaturedProducts();
+  const products = rawProducts.filter((p): p is ProductoConRelaciones => p !== null);
 
 
   return (

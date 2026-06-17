@@ -92,13 +92,14 @@ export function ProductosDataTable({
       header: "Nombre",
       cell: ({ row }) => {
         const isFeatured = row.original.destacado;
+        const featuredPos = row.original.destacadoPos;
         return (
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <span className="font-medium text-gray-900">{row.original.nombre}</span>
               {isFeatured && (
                 <span className="inline-flex items-center gap-0.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-white border border-white shadow-sm">
-                  Destacado
+                  Destacado {featuredPos ? `#${featuredPos}` : ""}
                 </span>
               )}
             </div>
