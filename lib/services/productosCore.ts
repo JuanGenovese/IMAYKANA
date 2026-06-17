@@ -8,7 +8,7 @@ import {
   estados,
   type ProductoConRelaciones
 } from "@/lib/db/schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq, and, inArray, ilike, sql } from "drizzle-orm";
 
 // Helper interno para obtener o crear la relación Talle x Categoría
 async function getOrCreateTalleXCategoria(
@@ -73,27 +73,85 @@ export async function getProductByIdCore(id: number): Promise<ProductoConRelacio
   return (result as ProductoConRelaciones) ?? null;
 }
 
-export async function getAvailableProductsCore(): Promise<ProductoConRelaciones[]> {
-  return (await db.query.productos.findMany({
-    where: (productos, { eq }) => eq(
-      productos.idEstado,
-      db
-        .select({ id: estados.id })
-        .from(estados)
-        .where(eq(estados.estado, "Disponible"))
-    ),
-    orderBy: (productos, { desc }) => [desc(productos.id)],
-    with: {
-      imagenes: true,
-      talleXCategoria: {
-        with: {
-          talle: true,
-          categoria: true,
-        },
+export async function getCategoriesCore() {
+  return await db.select().from(categorias);
+}
+
+export async function getAvailableProductsCore(options?: {
+  category?: string;
+  page?: number;
+  limit?: number;
+}): Promise<{ products: ProductoConRelaciones[]; total: number }> {
+  const page = options?.page ?? 1;
+  const limit = options?.limit ?? 12;
+  const offset = (page - 1) * limit;
+  const category = options?.category;
+
+  const [productsResult, countResult] = await Promise.all([
+    db.query.productos.findMany({
+      where: (productosTable, { eq, and, inArray, ilike }) => {
+        const available = eq(
+          productosTable.idEstado,
+          db
+            .select({ id: estados.id })
+            .from(estados)
+            .where(eq(estados.estado, "Disponible"))
+        );
+        if (category) {
+          return and(
+            available,
+            inArray(
+              productosTable.idTalleXCategoria,
+              db
+                .select({ id: tallesXCategoria.id })
+                .from(tallesXCategoria)
+                .leftJoin(categorias, eq(tallesXCategoria.idCategoria, categorias.id))
+                .where(ilike(categorias.categoria, category))
+            )
+          );
+        }
+        return available;
       },
-      estado: true,
-    },
-  })) as ProductoConRelaciones[];
+      orderBy: (productosTable, { desc }) => [desc(productosTable.id)],
+      limit: limit,
+      offset: offset,
+      with: {
+        imagenes: true,
+        talleXCategoria: {
+          with: {
+            talle: true,
+            categoria: true,
+          },
+        },
+        estado: true,
+      },
+    }),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(productos)
+      .innerJoin(estados, eq(productos.idEstado, estados.id))
+      .where(
+        and(
+          eq(estados.estado, "Disponible"),
+          category
+            ? inArray(
+                productos.idTalleXCategoria,
+                db
+                  .select({ id: tallesXCategoria.id })
+                  .from(tallesXCategoria)
+                  .leftJoin(categorias, eq(tallesXCategoria.idCategoria, categorias.id))
+                  .where(ilike(categorias.categoria, category))
+              )
+            : undefined
+        )
+      ),
+  ]);
+
+  const total = Number(countResult[0]?.count ?? 0);
+  return {
+    products: productsResult as ProductoConRelaciones[],
+    total,
+  };
 }
 
 export async function getFeaturedProductsCore(limit?: number): Promise<ProductoConRelaciones[]> {
@@ -272,6 +330,7 @@ export {
   getAllProductsCore as getAllProducts,
   createProductCore as createProduct,
   updateProductCore as updateProduct,
-  deleteProductCore as deleteProduct
+  deleteProductCore as deleteProduct,
+  getCategoriesCore as getCategories
 };
 
