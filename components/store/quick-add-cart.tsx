@@ -16,7 +16,7 @@ export default function QuickAddCart({ productId, size, className }: QuickAddCar
   const [added, setAdded] = React.useState(false);
 
   const handleAdd = (e: React.MouseEvent) => {
-    e.preventDefault(); // Evita que se navegue al link del producto
+    e.preventDefault();
     e.stopPropagation();
 
     addItem({
