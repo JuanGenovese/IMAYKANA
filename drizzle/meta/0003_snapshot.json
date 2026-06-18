@@ -1,0 +1,560 @@
+{
+  "id": "fdcaf2c2-f227-4a5c-bb62-9fd436cc6103",
+  "prevId": "5b43760d-a7d1-4b9e-b3ed-4d9059907265",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.roles": {
+      "name": "roles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "rol": {
+          "name": "rol",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "roles_rol_unique": {
+          "name": "roles_rol_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "rol"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.usuarios": {
+      "name": "usuarios",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "apellido": {
+          "name": "apellido",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "n_dni": {
+          "name": "n_dni",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_rol": {
+          "name": "id_rol",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "solicitud_vendedor": {
+          "name": "solicitud_vendedor",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "usuarios_id_rol_roles_id_fk": {
+          "name": "usuarios_id_rol_roles_id_fk",
+          "tableFrom": "usuarios",
+          "tableTo": "roles",
+          "columnsFrom": [
+            "id_rol"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "usuarios_n_dni_unique": {
+          "name": "usuarios_n_dni_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "n_dni"
+          ]
+        },
+        "usuarios_email_unique": {
+          "name": "usuarios_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.categorias": {
+      "name": "categorias",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "categoria": {
+          "name": "categoria",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "categorias_categoria_unique": {
+          "name": "categorias_categoria_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "categoria"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.talles": {
+      "name": "talles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "talle": {
+          "name": "talle",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "talles_talle_unique": {
+          "name": "talles_talle_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "talle"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.talles_x_categoria": {
+      "name": "talles_x_categoria",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_talle": {
+          "name": "id_talle",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_categoria": {
+          "name": "id_categoria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "talles_x_categoria_id_talle_talles_id_fk": {
+          "name": "talles_x_categoria_id_talle_talles_id_fk",
+          "tableFrom": "talles_x_categoria",
+          "tableTo": "talles",
+          "columnsFrom": [
+            "id_talle"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "talles_x_categoria_id_categoria_categorias_id_fk": {
+          "name": "talles_x_categoria_id_categoria_categorias_id_fk",
+          "tableFrom": "talles_x_categoria",
+          "tableTo": "categorias",
+          "columnsFrom": [
+            "id_categoria"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.metodos_pago": {
+      "name": "metodos_pago",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "metodo": {
+          "name": "metodo",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "metodos_pago_metodo_unique": {
+          "name": "metodos_pago_metodo_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "metodo"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.estados": {
+      "name": "estados",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "estados_estado_unique": {
+          "name": "estados_estado_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "estado"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.transacciones": {
+      "name": "transacciones",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_metodo_pago": {
+          "name": "id_metodo_pago",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_usuario": {
+          "name": "id_usuario",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "transacciones_id_metodo_pago_metodos_pago_id_fk": {
+          "name": "transacciones_id_metodo_pago_metodos_pago_id_fk",
+          "tableFrom": "transacciones",
+          "tableTo": "metodos_pago",
+          "columnsFrom": [
+            "id_metodo_pago"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "transacciones_id_usuario_usuarios_id_fk": {
+          "name": "transacciones_id_usuario_usuarios_id_fk",
+          "tableFrom": "transacciones",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "id_usuario"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.productos": {
+      "name": "productos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "destacado": {
+          "name": "destacado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "destacado_pos": {
+          "name": "destacado_pos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_talle_x_categoria": {
+          "name": "id_talle_x_categoria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cantidad": {
+          "name": "cantidad",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "id_transaccion": {
+          "name": "id_transaccion",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_estado": {
+          "name": "id_estado",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "color": {
+          "name": "color",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descripcion": {
+          "name": "descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "medidas_especificas": {
+          "name": "medidas_especificas",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "precio": {
+          "name": "precio",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "productos_id_talle_x_categoria_talles_x_categoria_id_fk": {
+          "name": "productos_id_talle_x_categoria_talles_x_categoria_id_fk",
+          "tableFrom": "productos",
+          "tableTo": "talles_x_categoria",
+          "columnsFrom": [
+            "id_talle_x_categoria"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "productos_id_transaccion_transacciones_id_fk": {
+          "name": "productos_id_transaccion_transacciones_id_fk",
+          "tableFrom": "productos",
+          "tableTo": "transacciones",
+          "columnsFrom": [
+            "id_transaccion"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "productos_id_estado_estados_id_fk": {
+          "name": "productos_id_estado_estados_id_fk",
+          "tableFrom": "productos",
+          "tableTo": "estados",
+          "columnsFrom": [
+            "id_estado"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.imagenes": {
+      "name": "imagenes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_producto": {
+          "name": "id_producto",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "imagenes_id_producto_productos_id_fk": {
+          "name": "imagenes_id_producto_productos_id_fk",
+          "tableFrom": "imagenes",
+          "tableTo": "productos",
+          "columnsFrom": [
+            "id_producto"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

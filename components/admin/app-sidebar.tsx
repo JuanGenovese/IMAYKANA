@@ -7,8 +7,8 @@ import {
     LayoutDashboard,
     Package,
     Users,
-    GitFork,
-    LogOut
+    LogOut,
+    FolderOpen
 } from "lucide-react";
 import { createSupabaseClient } from "@/lib/supabase/client";
 import {
@@ -27,13 +27,24 @@ const navItems = [
     { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
     { href: "/dashboard/productos", label: "Productos", icon: Package },
     { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
-    { href: "/dashboard/talles-categorias", label: "Talles", icon: GitFork },
+    { href: "/dashboard/categorias", label: "Categorías", icon: FolderOpen },
 ];
 
-export function AppSidebar({ className, ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+    rol?: string;
+}
+
+export function AppSidebar({ rol, className, ...props }: AppSidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const [userEmail, setUserEmail] = useState<string | undefined>();
+
+    const filteredNavItems = navItems.filter((item) => {
+        if (item.href === "/dashboard/categorias" && rol?.toLowerCase() !== "admin") {
+            return false;
+        }
+        return true;
+    });
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -67,7 +78,7 @@ export function AppSidebar({ className, ...props }: React.ComponentProps<typeof 
                 <SidebarGroup>
                     <SidebarGroupContent className="mt-1">
                         <SidebarMenu className="gap-1">
-                            {navItems.map(({ href, label, icon: Icon }) => {
+                            {filteredNavItems.map(({ href, label, icon: Icon }) => {
                                 const isActive =
                                     pathname === href ||
                                     (href !== "/dashboard" && pathname.startsWith(href));

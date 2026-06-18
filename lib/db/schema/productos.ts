@@ -16,8 +16,7 @@ export const productos = pgTable("productos", {
   destacado: boolean("destacado").notNull().default(false),
   destacadoPos: integer("destacado_pos"),
   idTalleXCategoria: integer("id_talle_x_categoria")
-    .notNull()
-    .references(() => tallesXCategoria.id, { onDelete: "restrict" }),
+    .references(() => tallesXCategoria.id, { onDelete: "set null" }),
   cantidad: integer("cantidad").notNull().default(1),
   idTransaccion: integer("id_transaccion").references(() => transacciones.id, {
     onDelete: "set null",
@@ -54,9 +53,9 @@ export type NewProducto = typeof productos.$inferInsert;
 
 export type ProductoConRelaciones = Producto & {
   imagenes: Imagen[];
-  talleXCategoria: TalleXCategoria & {
+  talleXCategoria: (TalleXCategoria & {
     talle: Talle;
     categoria: Categoria;
-  };
+  }) | null;
   estado: Estado;
 };
