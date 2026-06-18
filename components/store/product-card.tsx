@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import QuickAddCart from "@/components/store/quick-add-cart";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { type ProductoConRelaciones } from "@/lib/db/schema";
 
 const colorMap: Record<string, string> = {
@@ -91,7 +91,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Footer Action */}
       <div className="flex items-center justify-between mt-3 pt-2 border-t border-muted">
         <span className="text-xs font-semibold text-foreground">
-          Consultar precio
+          {formatPrice(product.precio)}
         </span>
         <QuickAddCart
           productId={product.id.toString()}

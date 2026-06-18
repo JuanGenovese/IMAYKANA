@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import type { ProductoConRelaciones } from "@/lib/db/schema";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export function ProductosCarrusel({
@@ -77,7 +77,7 @@ export function ProductosCarrusel({
                     {p.nombre}
                   </h3>
                   <span className="text-[11px] sm:text-xs font-medium text-white/85">
-                    Consultar precio
+                    {formatPrice(p.precio)}
                   </span>
                 </CardContent>
               </Card>

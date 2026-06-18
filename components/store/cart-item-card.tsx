@@ -1,8 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { type ResolvedCartItem } from "@/components/providers/cart-provider";
+
+import { formatPrice } from "@/lib/utils";
 
 interface CartItemCardProps {
   item: ResolvedCartItem;
@@ -57,7 +61,7 @@ export function CartItemCard({ item, onEliminar }: CartItemCardProps) {
           </div>
 
           <div className="text-sm font-semibold text-muted-foreground">
-            Consultar precio
+            {formatPrice(item.product.precio)}
           </div>
         </div>
       </CardContent>

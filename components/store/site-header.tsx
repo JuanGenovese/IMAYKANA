@@ -13,11 +13,13 @@ import { type User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { createSupabaseClient } from "@/lib/supabase/client";
+import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 
 export function SiteHeader() {
   const { count, toggleCart } = useCart();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createSupabaseClient();
@@ -41,7 +43,12 @@ export function SiteHeader() {
     };
   }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
+    setIsLogoutConfirmOpen(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setIsLogoutConfirmOpen(false);
     const supabase = createSupabaseClient();
     await supabase.auth.signOut();
     window.location.href = "/";
@@ -147,6 +154,12 @@ export function SiteHeader() {
           )}
         </div>
       </div>
+      <LogoutConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={handleConfirmLogout}
+        description="Vas a salir de tu cuenta y volver a la página de inicio."
+      />
     </header>
   );
 }

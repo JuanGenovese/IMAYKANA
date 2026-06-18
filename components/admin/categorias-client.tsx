@@ -16,6 +16,15 @@ type CategoriaConTalles = Categoria & {
   talles: Talle[];
 };
 
+interface CategoriaResult {
+  success?: boolean;
+  error?: string;
+  categoria?: CategoriaConTalles;
+  requiresConfirmation?: boolean;
+  affectedCount?: number;
+  productos?: { id: number; nombre: string }[];
+}
+
 interface CategoriasABMClientProps {
   initialCategories: CategoriaConTalles[];
 }
@@ -90,7 +99,7 @@ export function CategoriasABMClient({ initialCategories }: CategoriasABMClientPr
     setIsSubmitting(true);
     try {
       if (editingCategory) {
-        const res = await actualizarCategoria(editingCategory.id, trimmed, tallesList);
+        const res = (await actualizarCategoria(editingCategory.id, trimmed, tallesList)) as CategoriaResult;
         if (res.requiresConfirmation) {
           setPendingAction({
             type: "update",
@@ -115,7 +124,7 @@ export function CategoriasABMClient({ initialCategories }: CategoriasABMClientPr
           setIsModalOpen(false);
         }
       } else {
-        const res = await crearCategoria(trimmed, tallesList);
+        const res = (await crearCategoria(trimmed, tallesList)) as CategoriaResult;
         if (res.error) {
           toast.error(res.error);
         } else if (res.categoria) {
@@ -133,7 +142,7 @@ export function CategoriasABMClient({ initialCategories }: CategoriasABMClientPr
   };
 
   const handleDelete = async (id: number, catName: string) => {
-    const res = await eliminarCategoria(id);
+    const res = (await eliminarCategoria(id)) as CategoriaResult;
     if (res.requiresConfirmation) {
       setPendingAction({
         type: "delete",
@@ -158,12 +167,12 @@ export function CategoriasABMClient({ initialCategories }: CategoriasABMClientPr
     const toastId = toast.loading("Procesando cambios...");
     try {
       if (pendingAction.type === "update") {
-        const res = await actualizarCategoria(
+        const res = (await actualizarCategoria(
           pendingAction.id,
           pendingAction.nombre,
           pendingAction.tallesList || [],
           true
-        );
+        )) as CategoriaResult;
         if (res.error) {
           toast.error(res.error, { id: toastId });
         } else if (res.categoria) {
@@ -179,7 +188,7 @@ export function CategoriasABMClient({ initialCategories }: CategoriasABMClientPr
           setPendingAction(null);
         }
       } else if (pendingAction.type === "delete") {
-        const res = await eliminarCategoria(pendingAction.id, true);
+        const res = (await eliminarCategoria(pendingAction.id, true)) as CategoriaResult;
         if (res.error) {
           toast.error(res.error, { id: toastId });
         } else {

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { type ProductoConRelaciones } from "@/lib/db/schema";
 
 interface BentoGridHeroProps {
@@ -133,7 +133,7 @@ export function BentoGridHero({ featured }: BentoGridHeroProps) {
             </Link>
             <div className="flex items-center justify-between mt-4 pt-2 border-t border-muted">
               <span className="text-xs font-semibold text-foreground">
-                Consultar precio
+                {formatPrice(slot5.precio)}
               </span>
             </div>
           </div>

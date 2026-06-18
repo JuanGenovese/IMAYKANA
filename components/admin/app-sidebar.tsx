@@ -22,6 +22,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { toast } from "sonner";
+import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 
 const navItems = [
     { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
@@ -57,23 +59,26 @@ export function AppSidebar({ rol, className, ...props }: AppSidebarProps) {
         fetchUser();
     }, []);
 
-    const handleLogout = async () => {
+    const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+
+    const handleConfirmLogout = async () => {
+        setIsLogoutConfirmOpen(false);
         const supabase = createSupabaseClient();
         await supabase.auth.signOut();
+        toast.success("Sesión cerrada correctamente.");
         router.push("/login");
         router.refresh();
     };
 
     return (
-        <Sidebar side="left" variant="floating" collapsible="icon" className={className} {...props}>
-            {/* Header con el branding de IMAYKANA */}
-            <SidebarHeader className="border-b border-gray-100/50 p-4">
-                <span className="font-serif text-lg font-bold tracking-wider text-gray-900 group-data-[collapsible=icon]:hidden">
-                    Administracion
-                </span>
-            </SidebarHeader>
+        <>
+            <Sidebar side="left" variant="floating" collapsible="icon" className={className} {...props}>
+                <SidebarHeader className="border-b border-sidebar-border/50 p-4">
+                    <span className="font-serif text-lg font-bold tracking-wider text-sidebar-foreground group-data-[collapsible=icon]:hidden">
+                        Administración
+                    </span>
+                </SidebarHeader>
 
-            {/* Contenido con navegación del Dashboard */}
             <SidebarContent className="p-2">
                 <SidebarGroup>
                     <SidebarGroupContent className="mt-1">
@@ -89,9 +94,9 @@ export function AppSidebar({ rol, className, ...props }: AppSidebarProps) {
                                             asChild
                                             isActive={isActive}
                                             tooltip={label}
-                                            className={`w-full transition-all duration-200 rounded-lg ${isActive
+                                            className={`w-full transition-all duration-200 ease-brand rounded-lg ${isActive
                                                 ? "bg-primary text-primary-foreground shadow-sm font-semibold hover:bg-primary/95"
-                                                : "text-gray-600 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                                : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                                                 }`}
                                         >
                                             <Link href={href}>
@@ -107,14 +112,13 @@ export function AppSidebar({ rol, className, ...props }: AppSidebarProps) {
                 </SidebarGroup>
             </SidebarContent>
 
-            {/* Footer con información de sesión */}
-            <SidebarFooter className="border-t border-gray-100/50 p-3 flex flex-col gap-2">
+            <SidebarFooter className="border-t border-sidebar-border/50 p-3 flex flex-col gap-2">
                 {userEmail && (
-                    <div className="px-3 py-1.5 rounded-lg bg-gray-50/50 border border-gray-100/40 max-w-full overflow-hidden group-data-[collapsible=icon]:hidden">
-                        <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
+                    <div className="px-3 py-1.5 rounded-lg bg-sidebar-accent/50 border border-sidebar-border/40 max-w-full overflow-hidden group-data-[collapsible=icon]:hidden">
+                        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
                             Sesión activa
                         </p>
-                        <p className="text-xs font-semibold text-gray-700 truncate mt-0.5">
+                        <p className="text-xs font-semibold text-sidebar-foreground truncate mt-0.5">
                             {userEmail}
                         </p>
                     </div>
@@ -122,9 +126,9 @@ export function AppSidebar({ rol, className, ...props }: AppSidebarProps) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
-                            onClick={handleLogout}
+                            onClick={() => setIsLogoutConfirmOpen(true)}
                             tooltip="Cerrar sesión"
-                            className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors rounded-lg"
+                            className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors duration-200 ease-brand rounded-lg"
                         >
                             <LogOut className="h-4 w-4 shrink-0" />
                             <span>Cerrar sesión</span>
@@ -133,5 +137,13 @@ export function AppSidebar({ rol, className, ...props }: AppSidebarProps) {
                 </SidebarMenu>
             </SidebarFooter>
         </Sidebar>
+
+        <LogoutConfirmModal
+            isOpen={isLogoutConfirmOpen}
+            onClose={() => setIsLogoutConfirmOpen(false)}
+            onConfirm={handleConfirmLogout}
+            description="Vas a salir del panel de administración y volver a la pantalla de inicio de sesión."
+        />
+    </>
     );
 }

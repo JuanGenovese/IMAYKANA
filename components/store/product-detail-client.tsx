@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Check, Heart, ShoppingCart } from "lucide-react";
 
@@ -11,13 +11,13 @@ import { useCart } from "@/hooks/use-cart";
 import type { ProductoConRelaciones } from "@/lib/db/schema";
 import { WHATSAPP_PHONE } from "@/lib/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 
 export function ProductDetailClient({ product }: { product: ProductoConRelaciones }) {
   const { addItem, items, openCart } = useCart();
 
-  const [activeImage, setActiveImage] = React.useState(0);
-  const [justAdded, setJustAdded] = React.useState(false);
+  const [activeImage, setActiveImage] = useState(0);
+  const [justAdded, setJustAdded] = useState(false);
 
   const talle = product.talleXCategoria?.talle?.talle ?? "";
   const isAlreadyInCart = items.some(
@@ -43,7 +43,7 @@ export function ProductDetailClient({ product }: { product: ProductoConRelacione
       productId: product.id.toString(),
       size: talle,
       quantity: 1,
-      price: 0,
+      price: product.precio ?? 0,
     });
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 1400);
@@ -112,7 +112,7 @@ export function ProductDetailClient({ product }: { product: ProductoConRelacione
             {product.descripcion}
           </p>
           <div className="text-xl sm:text-2xl font-semibold text-muted-foreground">
-            Consultar precio
+            {formatPrice(product.precio)}
           </div>
         </div>
 

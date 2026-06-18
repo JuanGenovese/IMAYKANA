@@ -10,9 +10,11 @@ import {
 } from "@/lib/db/schema";
 import { eq, and, inArray, ilike, sql } from "drizzle-orm";
 
+type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
 // Helper interno para obtener o crear la relación Talle x Categoría
 async function getOrCreateTalleXCategoria(
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  tx: TransactionClient,
   categoryName: string,
   sizeName: string,
 ): Promise<number> {
@@ -209,26 +211,112 @@ interface ProductPayload {
   price: number;
 }
 
-export async function createProductCore(data: ProductPayload) {
-  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured, featuredPos, price } = data;
+// Helper to compact featured positions
+export async function compactFeaturedPositions(
+  tx: TransactionClient
+): Promise<void> {
+  const featured = await tx.query.productos.findMany({
+    where: eq(productos.destacado, true),
+    orderBy: productos.destacadoPos,
+  });
+
+  for (let i = 0; i < featured.length; i++) {
+    const newPos = i + 1;
+    if (featured[i].destacadoPos !== newPos) {
+      await tx.update(productos)
+        .set({ destacadoPos: newPos })
+        .where(eq(productos.id, featured[i].id));
+    }
+  }
+}
+
+// Helper to validate hierarchical position selection
+async function validateFeaturedPosition(
+  tx: TransactionClient,
+  productId: number | null,
+  featured: boolean,
+  featuredPos: number | null
+): Promise<void> {
+  if (!featured || featuredPos === null) return;
+
+  const currentFeatured = await tx.query.productos.findMany({
+    where: eq(productos.destacado, true),
+  });
+
+  const otherPositions = currentFeatured
+    .filter((p) => p.id !== productId && p.destacadoPos !== featuredPos)
+    .map((p) => p.destacadoPos)
+    .filter((pos): pos is number => pos !== null && !isNaN(pos));
+
+  let contiguousCount = 0;
+  while (otherPositions.includes(contiguousCount + 1)) {
+    contiguousCount++;
+  }
+  const maxSelectablePos = contiguousCount + 1;
+
+  if (featuredPos > maxSelectablePos) {
+    throw new Error(
+      `No se puede elegir la posición ${featuredPos} sin antes haber llenado las anteriores (Máxima disponible: ${maxSelectablePos}).`
+    );
+  }
+}
+
+async function prepareProductData(
+  tx: TransactionClient,
+  productId: number | null,
+  data: ProductPayload
+) {
+  const { category, size, status } = data;
+  let { featured, featuredPos } = data;
+
+  if (status === "No disponible") {
+    featured = false;
+    featuredPos = null;
+  }
   const parsedPos = featured && featuredPos ? parseInt(featuredPos, 10) : null;
 
-  const result = await db.transaction(async (tx) => {
-    // 1. Obtener ID de relación talle x categoría
-    const talleXCategoriaId = await getOrCreateTalleXCategoria(tx, category, size);
+  // 1. Obtener ID de relación talle x categoría
+  const talleXCategoriaId = await getOrCreateTalleXCategoria(tx, category, size);
 
-    // 2. Obtener el ID del estado en español
-    const est = await tx.query.estados.findFirst({
-      where: eq(estados.estado, status),
-    });
-    const estadoId = est ? est.id : 1; // Fallback al id 1 si no se encuentra
+  // 2. Obtener el ID del estado en español
+  const est = await tx.query.estados.findFirst({
+    where: eq(estados.estado, status),
+  });
+  const estadoId = est ? est.id : 1; // Fallback al id 1 si no se encuentra
 
-    // Clear conflict on position (if set)
-    if (parsedPos !== null) {
+  // Validar jerarquía de destacados
+  await validateFeaturedPosition(tx, productId, featured, parsedPos);
+
+  // Clear conflict on position (if set)
+  if (parsedPos !== null) {
+    if (productId !== null) {
+      await tx.update(productos)
+        .set({ destacado: false, destacadoPos: null })
+        .where(and(
+          eq(productos.destacadoPos, parsedPos),
+          sql`${productos.id} != ${productId}`
+        ));
+    } else {
       await tx.update(productos)
         .set({ destacado: false, destacadoPos: null })
         .where(eq(productos.destacadoPos, parsedPos));
     }
+  }
+
+  return {
+    talleXCategoriaId,
+    estadoId,
+    parsedPos,
+    featured,
+  };
+}
+
+export async function createProductCore(data: ProductPayload) {
+  const { name, color, descriptionSummary, specificMeasurements, photoUrls, price } = data;
+
+  const result = await db.transaction(async (tx) => {
+    const { talleXCategoriaId, estadoId, parsedPos, featured } =
+      await prepareProductData(tx, null, data);
 
     // 3. Insertar el Producto
     const [productoCreado] = await tx.insert(productos).values({
@@ -254,6 +342,9 @@ export async function createProductCore(data: ProductPayload) {
       );
     }
 
+    // 5. Compactar posiciones de destacados
+    await compactFeaturedPositions(tx);
+
     return productoCreado;
   });
 
@@ -261,28 +352,11 @@ export async function createProductCore(data: ProductPayload) {
 }
 
 export async function updateProductCore(id: number, data: ProductPayload) {
-  const { name, category, size, color, descriptionSummary, specificMeasurements, status, photoUrls, featured, featuredPos, price } = data;
-  const parsedPos = featured && featuredPos ? parseInt(featuredPos, 10) : null;
+  const { name, color, descriptionSummary, specificMeasurements, photoUrls, price } = data;
 
   await db.transaction(async (tx) => {
-    // 1. Obtener ID de relación talle x categoría
-    const talleXCategoriaId = await getOrCreateTalleXCategoria(tx, category, size);
-
-    // 2. Obtener el ID del estado en español
-    const est = await tx.query.estados.findFirst({
-      where: eq(estados.estado, status),
-    });
-    const estadoId = est ? est.id : 1;
-
-    // Clear conflict on position (if set)
-    if (parsedPos !== null) {
-      await tx.update(productos)
-        .set({ destacado: false, destacadoPos: null })
-        .where(and(
-          eq(productos.destacadoPos, parsedPos),
-          sql`${productos.id} != ${id}`
-        ));
-    }
+    const { talleXCategoriaId, estadoId, parsedPos, featured } =
+      await prepareProductData(tx, id, data);
 
     // 3. Actualizar el Producto
     await tx.update(productos).set({
@@ -307,12 +381,18 @@ export async function updateProductCore(id: number, data: ProductPayload) {
         }))
       );
     }
+
+    // 5. Compactar posiciones de destacados
+    await compactFeaturedPositions(tx);
   });
 }
 
 export async function deleteProductCore(id: number) {
-  // La eliminación de imágenes se hace por cascada a nivel DB
-  await db.delete(productos).where(eq(productos.id, id));
+  await db.transaction(async (tx) => {
+    // La eliminación de imágenes se hace por cascada a nivel DB
+    await tx.delete(productos).where(eq(productos.id, id));
+    await compactFeaturedPositions(tx);
+  });
 }
 
 export async function getProductsByIdsCore(ids: number[]): Promise<ProductoConRelaciones[]> {

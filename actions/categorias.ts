@@ -50,6 +50,8 @@ function manejarErrorCategorias(error: unknown, accion: string) {
   return { error: err.message || `Error al ${accion} la categoría.` };
 }
 
+import { compactFeaturedPositions } from "@/lib/services/productosCore";
+
 async function desvincularProductosAfectados(
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
   affectedProducts: { id: number; nombre: string }[]
@@ -67,8 +69,10 @@ async function desvincularProductosAfectados(
   const affectedProductIds = affectedProducts.map((p) => p.id);
   await tx
     .update(productos)
-    .set({ idTalleXCategoria: null, idEstado: noDisp.id })
+    .set({ idTalleXCategoria: null, idEstado: noDisp.id, destacado: false, destacadoPos: null })
     .where(inArray(productos.id, affectedProductIds));
+
+  await compactFeaturedPositions(tx);
 }
 
 export async function crearCategoria(nombre: string, tallesList: string[]) {

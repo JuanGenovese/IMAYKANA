@@ -62,6 +62,29 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
   const watchFeatured = watch("featured");
   const watchFeaturedPos = watch("featuredPos");
 
+  const watchStatus = watch("status");
+
+  // Resetear el destacado si el estado cambia a "No disponible"
+  useEffect(() => {
+    if (watchStatus === "No disponible") {
+      setValue("featured", false);
+      setValue("featuredPos", "");
+    }
+  }, [watchStatus, setValue]);
+
+  // Obtener otras posiciones destacadas para validar y habilitar opciones
+  const currentFeatured = metadata.featuredProducts || [];
+  const otherPositions = currentFeatured
+    .filter((p) => p.id !== producto?.id)
+    .map((p) => p.destacadoPos)
+    .filter((pos): pos is number => pos !== null && !isNaN(pos));
+  
+  let contiguousCount = 0;
+  while (otherPositions.includes(contiguousCount + 1)) {
+    contiguousCount++;
+  }
+  const maxSelectablePos = contiguousCount + 1;
+
   const conflictingProduct = watchFeatured && watchFeaturedPos
     ? metadata.featuredProducts?.find(
         (p) => p.destacadoPos === Number(watchFeaturedPos) && p.id !== producto?.id
@@ -86,6 +109,12 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
 
   const onSubmit = (data: ProductoFormValues) => {
     const parsedPos = data.featured && data.featuredPos ? Number(data.featuredPos) : null;
+    
+    if (data.featured && parsedPos !== null && parsedPos > maxSelectablePos) {
+      toast.error(`No se puede elegir la posición ${parsedPos} sin antes haber llenado las anteriores (Máxima disponible: ${maxSelectablePos}).`);
+      return;
+    }
+
     const hasConflict = parsedPos !== null && metadata.featuredProducts?.some(
       (p) => p.destacadoPos === parsedPos && p.id !== producto?.id
     );
@@ -106,7 +135,12 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
         : await crearProducto(payload);
 
       if (result?.error) {
-        toast.error("Hay errores en el formulario. Revisalos.");
+        const errors = result.error as Record<string, string[]>;
+        if (errors._form && errors._form[0]) {
+          toast.error(errors._form[0]);
+        } else {
+          toast.error("Hay errores en el formulario. Revisalos.");
+        }
       } else {
         toast.success(
           producto ? "Producto actualizado." : "Producto creado con éxito.",
@@ -214,11 +248,16 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
             type="checkbox"
             id="featured"
             {...register("featured")}
-            disabled={isLoading}
-            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            disabled={isLoading || watchStatus === "No disponible"}
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:opacity-50"
           />
-          <label htmlFor="featured" className="text-sm font-medium text-gray-700 select-none">
+          <label htmlFor="featured" className="text-sm font-medium text-gray-700 select-none flex items-center gap-2">
             Destacar producto (se mostrará en el Bento Grid de la tienda)
+            {watchStatus === "No disponible" && (
+              <span className="text-xs font-normal text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                No disponible para prendas fuera de stock
+              </span>
+            )}
           </label>
         </div>
 
@@ -232,13 +271,38 @@ export function ProductoForm({ producto, metadata, onClose }: ProductoFormProps)
                   className={inputCls}
                 >
                   <option value="">Seleccionar posición...</option>
-                  <option value="1">1 - Principal Grande (Columna 1)</option>
-                  <option value="2">2 - Superior Apilado (Columna 2 - Fila 1)</option>
-                  <option value="3">3 - Medio Apilado (Columna 2 - Fila 2)</option>
-                  <option value="4">4 - Inferior Apilado (Columna 2 - Fila 3)</option>
-                  <option value="5">5 - Lateral Destacado (Columna 3)</option>
+                  <option value="1" disabled={1 > maxSelectablePos}>
+                    1 - Principal Grande (Columna 1) {1 > maxSelectablePos ? "🔒 (Llenar anteriores)" : ""}
+                  </option>
+                  <option value="2" disabled={2 > maxSelectablePos}>
+                    2 - Superior Apilado (Columna 2 - Fila 1) {2 > maxSelectablePos ? "🔒 (Llenar anteriores)" : ""}
+                  </option>
+                  <option value="3" disabled={3 > maxSelectablePos}>
+                    3 - Medio Apilado (Columna 2 - Fila 2) {3 > maxSelectablePos ? "🔒 (Llenar anteriores)" : ""}
+                  </option>
+                  <option value="4" disabled={4 > maxSelectablePos}>
+                    4 - Inferior Apilado (Columna 2 - Fila 3) {4 > maxSelectablePos ? "🔒 (Llenar anteriores)" : ""}
+                  </option>
+                  <option value="5" disabled={5 > maxSelectablePos}>
+                    5 - Lateral Destacado (Columna 3) {5 > maxSelectablePos ? "🔒 (Llenar anteriores)" : ""}
+                  </option>
                 </select>
               </Field>
+              <button
+                type="button"
+                onClick={() => {
+                  setValue("featured", false);
+                  setValue("featuredPos", "");
+                }}
+                className="mt-2 text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+              >
+                Quitar de destacados
+              </button>
+              {maxSelectablePos < 5 && (
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  Las posiciones superiores a {maxSelectablePos} están bloqueadas para respetar el orden jerárquico.
+                </p>
+              )}
               {conflictingProduct && (
                 <p className="mt-2 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2.5 animate-in fade-in duration-205">
                   ⚠️ Atendé: La posición {watchFeaturedPos} ya está ocupada por el producto <strong>&quot;{conflictingProduct.nombre}&quot;</strong>. Si guardás, ese producto dejará de estar destacado.

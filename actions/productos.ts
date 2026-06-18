@@ -43,7 +43,8 @@ export async function crearProducto(data: unknown) {
     return { success: true, id: productoCreado.id };
   } catch (error) {
     console.error("Error al crear producto:", error);
-    return { error: { _form: ["Error al guardar el producto en la base de datos."] } };
+    const msg = error instanceof Error ? error.message : "Error al guardar el producto en la base de datos.";
+    return { error: { _form: [msg] } };
   }
 }
 
@@ -64,7 +65,8 @@ export async function actualizarProducto(id: number, data: unknown) {
     return { success: true };
   } catch (error) {
     console.error("Error al actualizar producto:", error);
-    return { error: { _form: ["Error al actualizar el producto en la base de datos."] } };
+    const msg = error instanceof Error ? error.message : "Error al actualizar el producto en la base de datos.";
+    return { error: { _form: [msg] } };
   }
 }
 

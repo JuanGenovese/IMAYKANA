@@ -18,6 +18,7 @@ import {
   Activity
 } from "lucide-react";
 import { createSupabaseClient } from "@/lib/supabase/client";
+import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 
 const navItems = [
   { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
@@ -39,8 +40,14 @@ export function AdminNav({ userEmail }: AdminNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
+    setIsLogoutConfirmOpen(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setIsLogoutConfirmOpen(false);
     const supabase = createSupabaseClient();
     await supabase.auth.signOut();
     router.push("/login");
@@ -183,6 +190,12 @@ export function AdminNav({ userEmail }: AdminNavProps) {
           </div>
         </aside>
       </div>
+      <LogoutConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={handleConfirmLogout}
+        description="Vas a salir del panel de administración y volver a la pantalla de inicio de sesión."
+      />
     </>
   );
 }
