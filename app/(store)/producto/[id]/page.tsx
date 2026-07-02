@@ -3,9 +3,9 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 
-import { ProductDetailClient } from "@/components/product-detail-client";
+import { ProductDetailClient } from "@/components/store/product-detail-client";
 import { Button } from "@/components/ui/button";
-import { getProductById } from "@/lib/db/queries";
+import { getProductById } from "@/lib/services/productosCore";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -14,7 +14,12 @@ type Props = {
 // Generación de metadatos dinámicos SEO (Fase 3.4)
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const product = await getProductById(Number(id));
+  const parsedId = Number(id);
+  if (isNaN(parsedId) || parsedId <= 0) {
+    return { title: "Producto no encontrado" };
+  }
+
+  const product = await getProductById(parsedId);
 
   if (!product) {
     return { title: "Producto no encontrado" };
@@ -33,9 +38,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { id } = await params;
-  const product = await getProductById(Number(id));
+  const parsedId = Number(id);
 
-  if (!product || product.estado?.estado !== "AVAILABLE") {
+  if (isNaN(parsedId) || parsedId <= 0) {
+    notFound();
+  }
+
+  const product = await getProductById(parsedId);
+
+  if (!product || product.estado?.estado !== "Disponible") {
     notFound();
   }
 

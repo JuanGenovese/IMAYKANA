@@ -11,121 +11,165 @@ import {
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { ProductoConRelaciones } from "@/lib/db/schema";
-import Link from "next/link";
-import { Pencil, Image as ImageIcon } from "lucide-react";
+import { Pencil, Image as ImageIcon, X } from "lucide-react";
 import Image from "next/image";
 import { EliminarProductoButton } from "./EliminarProductoButton";
+import { ProductoForm, type FormMetadata } from "./ProductoForm";
 
 const statusLabel: Record<string, string> = {
-  AVAILABLE: "Disponible",
-  RESERVED: "Reservado",
-  SOLD: "Vendido",
+  Disponible: "Disponible",
+  Reservado: "Reservado",
+  Vendido: "Vendido",
 };
 
 const statusColors: Record<string, string> = {
-  AVAILABLE: "bg-green-100 text-green-700",
-  RESERVED: "bg-yellow-100 text-yellow-700",
-  SOLD: "bg-gray-100 text-gray-500",
+  Disponible: "bg-green-100 text-green-700",
+  Reservado: "bg-yellow-100 text-yellow-700",
+  Vendido: "bg-gray-100 text-gray-500",
 };
-
-const columns: ColumnDef<ProductoConRelaciones>[] = [
-  {
-    id: "thumbnail",
-    header: "",
-    cell: ({ row }) => {
-      const photo = row.original.imagenes?.[0]?.url;
-      return (
-        <div className="relative h-10 w-10 overflow-hidden rounded-md border border-gray-100 bg-gray-50">
-          {photo ? (
-            <Image
-              src={photo}
-              alt={row.original.nombre}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-gray-300">
-              <ImageIcon className="h-5 w-5" />
-            </div>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "nombre",
-    header: "Nombre",
-    cell: ({ row }) => (
-      <div className="flex flex-col">
-        <span className="font-medium text-gray-900">{row.original.nombre}</span>
-        <span className="text-xs text-gray-500 lg:hidden">
-          {row.original.talleXCategoria?.categoria?.categoria}
-        </span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "talleXCategoria.categoria.categoria",
-    header: "Categoría",
-    cell: ({ row }) => (
-      <span className="hidden lg:inline">
-        {row.original.talleXCategoria?.categoria?.categoria}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "talleXCategoria.talle.talle",
-    header: "Talle",
-    cell: ({ row }) => (
-      <span>{row.original.talleXCategoria?.talle?.talle}</span>
-    ),
-  },
-  { accessorKey: "color", header: "Color" },
-  {
-    accessorKey: "estado.estado",
-    header: "Estado",
-    cell: ({ row }) => {
-      const s = row.original.estado?.estado ?? "AVAILABLE";
-      return (
-        <span
-          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[s] ?? "bg-gray-100 text-gray-600"}`}
-        >
-          {statusLabel[s] ?? s}
-        </span>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "",
-    cell: ({ row }) => (
-      <div className="flex items-center justify-end gap-2">
-        <Link
-          href={`/dashboard/productos/${row.original.id}`}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
-          title="Editar"
-        >
-          <Pencil className="h-4 w-4" />
-        </Link>
-        <EliminarProductoButton id={row.original.id} variant="icon" />
-      </div>
-    ),
-  },
-];
 
 interface ProductosDataTableProps {
   data: ProductoConRelaciones[];
+  metadata: FormMetadata;
   initialSearch?: string;
 }
 
 export function ProductosDataTable({
   data,
+  metadata,
   initialSearch = "",
 }: ProductosDataTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [globalFilter, setGlobalFilter] = useState(initialSearch);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<ProductoConRelaciones | undefined>(undefined);
+
+  const openNewProductModal = () => {
+    setSelectedProduct(undefined);
+    setIsModalOpen(true);
+  };
+
+  const openEditProductModal = (product: ProductoConRelaciones) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(undefined);
+  };
+
+  const columns: ColumnDef<ProductoConRelaciones>[] = [
+    {
+      id: "thumbnail",
+      header: "",
+      cell: ({ row }) => {
+        const photo = row.original.imagenes?.[0]?.url;
+        return (
+          <div className="relative h-10 w-10 overflow-hidden rounded-md border border-gray-100 bg-gray-50">
+            {photo ? (
+              <Image
+                src={photo}
+                alt={row.original.nombre}
+                fill
+                className="object-cover"
+                sizes="40px"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-gray-300">
+                <ImageIcon className="h-5 w-5" />
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "nombre",
+      header: "Nombre",
+      cell: ({ row }) => {
+        const isFeatured = row.original.destacado;
+        const featuredPos = row.original.destacadoPos;
+        return (
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-gray-900">{row.original.nombre}</span>
+              {isFeatured && (
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-white border border-white shadow-sm">
+                  Destacado {featuredPos ? `#${featuredPos}` : ""}
+                </span>
+              )}
+            </div>
+            <span className="text-xs text-gray-500 lg:hidden">
+              {row.original.talleXCategoria?.categoria?.categoria}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "talleXCategoria.categoria.categoria",
+      header: "Categoría",
+      cell: ({ row }) => (
+        <span className="hidden lg:inline">
+          {row.original.talleXCategoria?.categoria?.categoria}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "talleXCategoria.talle.talle",
+      header: "Talle",
+      cell: ({ row }) => (
+        <span>{row.original.talleXCategoria?.talle?.talle}</span>
+      ),
+    },
+    { accessorKey: "color", header: "Color" },
+    {
+      accessorKey: "precio",
+      header: "Precio",
+      cell: ({ row }) => {
+        const precio = row.original.precio ?? 0;
+        return (
+          <span className="font-semibold text-gray-900">
+            ${precio.toLocaleString("es-AR")}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "estado.estado",
+      header: "Estado",
+      cell: ({ row }) => {
+        const s = row.original.estado?.estado ?? "Disponible";
+        return (
+          <span
+            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[s] ?? "bg-gray-100 text-gray-600"}`}
+          >
+            {statusLabel[s] ?? s}
+          </span>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => (
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => openEditProductModal(row.original)}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+            title="Editar"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <EliminarProductoButton id={row.original.id} variant="icon" />
+        </div>
+      ),
+    },
+  ];
 
   // Sincroniza globalFilter con URL (?q=...)
   const updateSearch = useCallback(
@@ -169,12 +213,12 @@ export function ProductosDataTable({
           onChange={(e) => setGlobalFilter(e.target.value)}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 sm:max-w-sm"
         />
-        <Link
-          href="/dashboard/productos/nuevo"
-          className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 transition whitespace-nowrap"
+        <button
+          onClick={openNewProductModal}
+          className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition whitespace-nowrap shadow-sm"
         >
           + Nuevo Producto
-        </Link>
+        </button>
       </div>
 
       {/* Vista de escritorio: Tabla */}
@@ -238,7 +282,7 @@ export function ProductosDataTable({
           table.getRowModel().rows.map((row) => {
             const p = row.original;
             const photo = p.imagenes?.[0]?.url;
-            const s = p.estado?.estado ?? "AVAILABLE";
+            const s = p.estado?.estado ?? "Disponible";
             return (
               <div
                 key={row.id}
@@ -252,6 +296,7 @@ export function ProductosDataTable({
                       alt={p.nombre}
                       fill
                       className="object-cover"
+                      sizes="64px"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-gray-300">
@@ -272,7 +317,7 @@ export function ProductosDataTable({
                       {statusLabel[s] ?? s}
                     </span>
                   </div>
-                  
+
                   <span className="text-xs text-gray-500 mt-0.5">
                     {p.talleXCategoria?.categoria?.categoria || "Sin categoría"}
                   </span>
@@ -291,13 +336,13 @@ export function ProductosDataTable({
 
                 {/* Actions */}
                 <div className="flex flex-col gap-2 shrink-0 self-stretch justify-center pl-3 border-l border-gray-100">
-                  <Link
-                    href={`/dashboard/productos/${p.id}`}
+                  <button
+                    onClick={() => openEditProductModal(p)}
                     className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
                     title="Editar"
                   >
                     <Pencil className="h-4 w-4" />
-                  </Link>
+                  </button>
                   <EliminarProductoButton id={p.id} variant="icon" />
                 </div>
               </div>
@@ -329,6 +374,36 @@ export function ProductosDataTable({
           </button>
         </div>
       </div>
+
+      {/* Modal flotante */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm transition-opacity duration-300">
+          <div className="relative w-full max-w-3xl transform rounded-2xl bg-white shadow-2xl transition-all duration-300 flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-gray-100 p-5">
+              <h2 className="text-xl font-bold text-gray-900">
+                {selectedProduct ? "Editar Producto" : "Nuevo Producto"}
+              </h2>
+              <button
+                onClick={closeModal}
+                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition"
+              >
+                <span className="sr-only">Cerrar</span>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <ProductoForm
+                producto={selectedProduct}
+                metadata={metadata}
+                onClose={closeModal}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,105 +1,107 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { createSupabaseClient } from "@/lib/supabase/client";
-
-const loginSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().min(6, "Mínimo 6 caracteres"),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
+import { cn } from "@/lib/utils";
+import { useLoginForm } from "@/hooks/useLoginForm";
+import { LoginFormHeader } from "./login-form/LoginFormHeader";
+import { RegisterFields } from "./login-form/RegisterFields";
+import { PasswordField } from "./login-form/PasswordField";
+import { LoginFormFooter } from "./login-form/LoginFormFooter";
 
 export function LoginForm() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
-  });
-
-  const onSubmit = async (data: LoginValues) => {
-    setIsLoading(true);
-    try {
-      const supabase = createSupabaseClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) {
-        toast.error("Credenciales incorrectas o error de acceso.");
-        console.error(error);
-      } else {
-        toast.success("Acceso concedido");
-        router.push("/dashboard");
-        router.refresh();
-      }
-    } catch (err) {
-      toast.error("Error inesperado. Intentá de nuevo.");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    onSubmit,
+    errors,
+    isLoading,
+    isRegister,
+    setIsRegister,
+    isResetPass,
+    setIsResetPass,
+    verContrasena,
+    setVerContrasena,
+  } = useLoginForm();
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-8 shadow-sm"
+    <div
+      className={cn(
+        "mt-10 mb-10 w-full flex flex-col items-center justify-center transition-all ease-in-out duration-300",
+        isRegister && !isResetPass ? "max-w-[480px]" : "max-w-[420px]"
+      )}
     >
-      <div className="flex flex-col gap-1">
-        <label htmlFor="email" className="text-sm font-medium text-gray-700">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          {...register("email")}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
-          disabled={isLoading}
-          placeholder="admin@imaykana.com"
-        />
-        {errors.email && (
-          <p className="text-xs text-red-600">{errors.email.message}</p>
-        )}
-      </div>
+      <LoginFormHeader isResetPass={isResetPass} isRegister={isRegister} />
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="password" className="text-sm font-medium text-gray-700">
-          Contraseña
-        </label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          {...register("password")}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
-          disabled={isLoading}
-          placeholder="••••••••"
-        />
-        {errors.password && (
-          <p className="text-xs text-red-600">{errors.password.message}</p>
-        )}
-      </div>
+      <div className="w-full relative z-10 flex flex-col">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm w-full relative z-10 mt-2"
+        >
+          <RegisterFields
+            register={register}
+            errors={errors}
+            isLoading={isLoading}
+            isRegister={isRegister}
+            isResetPass={isResetPass}
+          />
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="mt-2 flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-700 disabled:opacity-60"
-      >
-        {isLoading ? "Ingresando..." : "Ingresar"}
-      </button>
-    </form>
+          {/*--------------- Email ----------------*/}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="email" className="text-xs font-semibold text-gray-500">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              {...register("email")}
+              className="rounded-lg border border-gray-300 px-3.5 py-2 text-sm outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
+              disabled={isLoading}
+              placeholder="imaykana@gmail.com"
+            />
+            {errors.email && (
+              <p className="text-xs text-red-600">{errors.email.message}</p>
+            )}
+          </div>
+
+          {/*------------- Contraseña -------------*/}
+          <PasswordField
+            register={register}
+            errors={errors}
+            isLoading={isLoading}
+            isResetPass={isResetPass}
+            isRegister={isRegister}
+            verContrasena={verContrasena}
+            setVerContrasena={setVerContrasena}
+            setIsResetPass={setIsResetPass}
+          />
+
+          {/*--------------- Submit ---------------*/}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="mt-2 flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-700 disabled:opacity-60 cursor-pointer"
+          >
+            {isLoading
+              ? isResetPass
+                ? "Enviando..."
+                : isRegister
+                  ? "Registrando..."
+                  : "Ingresando..."
+              : isResetPass
+                ? "Recuperar contraseña"
+                : isRegister
+                  ? "Registrarme"
+                  : "Ingresar"}
+          </button>
+        </form>
+
+        <LoginFormFooter
+          isResetPass={isResetPass}
+          isRegister={isRegister}
+          setIsResetPass={setIsResetPass}
+          setIsRegister={setIsRegister}
+        />
+      </div>
+    </div>
   );
 }

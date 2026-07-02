@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: imaykana-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: local_password
+      POSTGRES_DB: imaykana
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Contenedor temporal para correr las migraciones antes de iniciar la app
+  db-migrate:
+    build:
+      context: .
+      target: builder
+    environment:
+      DATABASE_URL: postgresql://postgres:local_password@db:5432/imaykana
+    depends_on:
+      db:
+        condition: service_healthy
+    command: pnpm db:migrate
+
+  web:
+    build:
+      context: .
+      target: runner
+    container_name: imaykana-web
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:local_password@db:5432/imaykana
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:

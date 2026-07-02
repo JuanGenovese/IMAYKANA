@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition, useOptimistic } from "react";
-import { eliminarProducto } from "@/actions/admin/productos";
+import { eliminarProducto } from "@/actions/productos";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";

@@ -3,12 +3,33 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Package, Menu, X, LogOut } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  Package, 
+  Menu, 
+  X, 
+  LogOut,
+  Users,
+  Shield,
+  CreditCard,
+  Tag,
+  Ruler,
+  GitFork,
+  Activity
+} from "lucide-react";
 import { createSupabaseClient } from "@/lib/supabase/client";
+import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 
 const navItems = [
   { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
   { href: "/dashboard/productos", label: "Productos", icon: Package },
+  { href: "/dashboard/roles", label: "Roles", icon: Shield },
+  { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
+  { href: "/dashboard/metodos-pago", label: "Métodos de Pago", icon: CreditCard },
+  { href: "/dashboard/categorias", label: "Categorías", icon: Tag },
+  { href: "/dashboard/talles", label: "Talles", icon: Ruler },
+  { href: "/dashboard/talles-categorias", label: "Talles x Categoría", icon: GitFork },
+  { href: "/dashboard/estados", label: "Estados", icon: Activity },
 ];
 
 interface AdminNavProps {
@@ -19,8 +40,14 @@ export function AdminNav({ userEmail }: AdminNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
+    setIsLogoutConfirmOpen(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setIsLogoutConfirmOpen(false);
     const supabase = createSupabaseClient();
     await supabase.auth.signOut();
     router.push("/login");
@@ -163,6 +190,12 @@ export function AdminNav({ userEmail }: AdminNavProps) {
           </div>
         </aside>
       </div>
+      <LogoutConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={handleConfirmLogout}
+        description="Vas a salir del panel de administración y volver a la pantalla de inicio de sesión."
+      />
     </>
   );
 }
