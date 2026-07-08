@@ -8,6 +8,8 @@ export const metadata = {
   title: "Categorías — Panel de Administración",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function CategoriasPage() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
