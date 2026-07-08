@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getFormMetadata } from "@/lib/services/productosCore";
 
+export const dynamic = "force-dynamic";
+
 export default async function NuevoProductoPage() {
   const metadata = await getFormMetadata();
 

@@ -5,6 +5,8 @@ import { ArrowLeft } from "lucide-react";
 import { getProductById, getFormMetadata } from "@/lib/services/productosCore";
 import { type ProductoConRelaciones } from "@/lib/db/schema";
 
+export const dynamic = "force-dynamic";
+
 interface EditarProductoPageProps {
   params: Promise<{ id: string }>;
 }
