@@ -45,3 +45,5 @@ ts_errs.txt
 tsconfig.tsbuildinfo
 # Local AI runtime state
 .atl/
+/AGENTS.md
+
