@@ -29,6 +29,13 @@
       "when": 1781730950934,
       "tag": "0003_short_karen_page",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783641494889,
+      "tag": "0004_add_auth_trigger_and_seeds",
+      "breakpoints": true
     }
   ]
 }
