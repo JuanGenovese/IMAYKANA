@@ -18,24 +18,47 @@ import { LogoutConfirmModal } from "@/components/LogoutConfirmModal";
 export function SiteHeader() {
   const { count, toggleCart } = useCart();
   const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createSupabaseClient();
 
+    const fetchUserRoleAndSet = (currentUser: User | null) => {
+      if (currentUser) {
+        try {
+          const stored = localStorage.getItem("user");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            setRole(parsed.rol || null);
+          } else {
+            setRole(null);
+          }
+        } catch (error) {
+          //console.error("Error reading user role from localStorage:", error); --> logfire
+          setRole(null);
+        }
+      } else {
+        setRole(null);
+      }
+      setLoading(false);
+    };
+
     // Obtener sesión actual
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      fetchUserRoleAndSet(currentUser);
     });
 
     // Escuchar cambios de estado de autenticación
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      fetchUserRoleAndSet(currentUser);
     });
 
     return () => {
@@ -51,6 +74,7 @@ export function SiteHeader() {
     setIsLogoutConfirmOpen(false);
     const supabase = createSupabaseClient();
     await supabase.auth.signOut();
+    localStorage.removeItem("user");
     window.location.href = "/";
   };
 
@@ -118,17 +142,19 @@ export function SiteHeader() {
 
           {!loading && user ? (
             <>
-              <Button
-                asChild
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 sm:h-10 sm:w-10 text-primary hover:text-primary/80 transition-colors"
-                aria-label="Ir al Panel"
-              >
-                <Link href="/dashboard">
-                  <LayoutDashboard className="size-4 sm:size-5" />
-                </Link>
-              </Button>
+              {role && role.toLowerCase() !== "cliente" && (
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 sm:h-10 sm:w-10 text-primary hover:text-primary/80 transition-colors"
+                  aria-label="Ir al Panel"
+                >
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="size-4 sm:size-5" />
+                  </Link>
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
