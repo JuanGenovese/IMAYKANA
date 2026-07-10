@@ -21,6 +21,7 @@ export function useLoginForm() {
   const [isRegister, setIsRegister] = useState(false);
   const [isResetPass, setIsResetPass] = useState(false);
   const [verContrasena, setVerContrasena] = useState(false);
+  const [isSignUpSuccess, setIsSignUpSuccess] = useState(false);
 
   const {
     register,
@@ -113,22 +114,10 @@ export function useLoginForm() {
           toast.error("Error al registrar el usuario.");
           //lofire(error.message)
         } else if (authData.user) {
-          const userRegistered = await obtenerUsuarioPorId(authData.user.id);
-          if (userRegistered.success && userRegistered.usuario) {
-            const userProfile = {
-              nombre: userRegistered.usuario.nombre,
-              apellido: userRegistered.usuario.apellido,
-              email: userRegistered.usuario.email,
-              rol: userRegistered.usuario.rol,
-            };
-            localStorage.setItem("user", JSON.stringify(userProfile));
-            toast.success(
-              "¡Registro exitoso! Por favor confirmá tu correo para activar la cuenta."
-            );
-            router.push("/productos");
-            router.refresh();
-            setIsRegister(false);
-          }
+          setIsSignUpSuccess(true);
+          toast.success(
+            "¡Registro exitoso! Por favor confirmá tu correo para activar la cuenta."
+          );
         }
       } else {
         const { data: authData, error } =
@@ -150,10 +139,8 @@ export function useLoginForm() {
             router.refresh();
           } else {
             await supabase.auth.signOut();
-            toast.error(
-              userProfile.error ||
-              "No se pudo recuperar el perfil del usuario."
-            );
+            toast.error("La cuenta no existe. Por favor, regístrate.");
+            //lofire(userProfile.error);
           }
         }
       }
@@ -178,5 +165,7 @@ export function useLoginForm() {
     setIsResetPass,
     verContrasena,
     setVerContrasena,
+    isSignUpSuccess,
+    setIsSignUpSuccess,
   };
 }
