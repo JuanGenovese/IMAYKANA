@@ -12,7 +12,7 @@ import {
   registerSchema,
   resetSchema,
 } from "@/lib/schemas/auth";
-import { obtenerUsuarioPorId } from "@/actions/usuarios";
+import { obtenerUsuarioPorId, validarDatosRegistro } from "@/actions/usuarios";
 
 export function useLoginForm() {
   const router = useRouter();
@@ -82,10 +82,16 @@ export function useLoginForm() {
     }
     setIsLoading(true);
     try {
-
       if (isRegister) {
         if (!data.nombre || !data.apellido || !data.nDni) {
           toast.error("Por favor complete todos los campos.");
+          setIsLoading(false);
+          return;
+        }
+
+        const validacion = await validarDatosRegistro(data.email, data.nDni);
+        if (!validacion.success) {
+          toast.error(validacion.error);
           setIsLoading(false);
           return;
         }
@@ -98,29 +104,30 @@ export function useLoginForm() {
               nombre: data.nombre,
               apellido: data.apellido,
               nDni: data.nDni,
-              solicitud_vendedor: data.isVendedor || false,
+              solicitudVendedor: !!data.isVendedor,
             },
           },
         });
 
         if (error) {
-          toast.error(error.message);
+          toast.error("Error al registrar el usuario.");
+          //lofire(error.message)
         } else if (authData.user) {
-          const userProfile = await obtenerUsuarioPorId(authData.user.id);
-          if (userProfile.success && userProfile.usuario) {
-            localStorage.setItem("user", JSON.stringify(userProfile.usuario));
+          const userRegistered = await obtenerUsuarioPorId(authData.user.id);
+          if (userRegistered.success && userRegistered.usuario) {
+            const userProfile = {
+              nombre: userRegistered.usuario.nombre,
+              apellido: userRegistered.usuario.apellido,
+              email: userRegistered.usuario.email,
+              rol: userRegistered.usuario.rol,
+            };
+            localStorage.setItem("user", JSON.stringify(userProfile));
             toast.success(
               "¡Registro exitoso! Por favor confirmá tu correo para activar la cuenta."
             );
             router.push("/productos");
             router.refresh();
             setIsRegister(false);
-          } else {
-            await supabase.auth.signOut();
-            toast.error(
-              userProfile.error ||
-              "Error al sincronizar el perfil de usuario. Intente registrarse de nuevo."
-            );
           }
         }
       } else {
@@ -150,16 +157,12 @@ export function useLoginForm() {
           }
         }
       }
-
     } catch (err) {
       await supabase.auth.signOut();
       toast.error("Error inesperado. Intentá de nuevo.");
       console.error(err);
-
     } finally {
-
       setIsLoading(false);
-
     }
   };
 
