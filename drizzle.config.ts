@@ -13,9 +13,9 @@ let connectionString: string | undefined;
 if (entorno === "local") {
   connectionString = process.env.DATABASE_LOCAL_URL;
 } else if (entorno === "dev") {
-  connectionString = process.env.DATABASE_DEV_URL;
+  connectionString = process.env.DATABASE_DEV_URL_SESSION;
 } else {
-  connectionString = process.env.DATABASE_PROD_URL;
+  connectionString = process.env.DATABASE_PROD_URL_SESSION;
 }
 
 if (!connectionString) {
@@ -23,6 +23,9 @@ if (!connectionString) {
     `Error de configuración: La variable de entorno de base de datos para el entorno '${entorno}' no está configurada.`
   );
 }
+
+const maskedUrl = connectionString.replace(/:([^@:]+)@/, ":******@");
+console.log(`\n🔍 [Drizzle Config] Entorno: ${entorno} | URL: ${maskedUrl}\n`);
 
 export default defineConfig({
   dialect: "postgresql",

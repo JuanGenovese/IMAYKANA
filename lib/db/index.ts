@@ -15,9 +15,9 @@ let connectionString: string | undefined;
 if (entorno === "local") {
   connectionString = process.env.DATABASE_LOCAL_URL;
 } else if (entorno === "dev") {
-  connectionString = process.env.DATABASE_DEV_URL;
+  connectionString = process.env.DATABASE_DEV_URL_TRANSACTION;
 } else {
-  connectionString = process.env.DATABASE_PROD_URL;
+  connectionString = process.env.DATABASE_PROD_URL_TRANSACTION;
 }
 
 if (!connectionString) {

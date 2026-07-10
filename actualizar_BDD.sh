@@ -40,10 +40,10 @@ case "$ENTORNO" in
     DB_URL="$DATABASE_LOCAL_URL"
     ;;
   dev)
-    DB_URL="$DATABASE_DEV_URL"
+    DB_URL="$DATABASE_DEV_URL_SESSION"
     ;;
   prod)
-    DB_URL="$DATABASE_PROD_URL"
+    DB_URL="$DATABASE_PROD_URL_SESSION"
     ;;
 esac
 
