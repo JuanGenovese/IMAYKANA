@@ -22,6 +22,7 @@ export function useLoginForm() {
   const [isResetPass, setIsResetPass] = useState(false);
   const [verContrasena, setVerContrasena] = useState(false);
   const [isSignUpSuccess, setIsSignUpSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   const {
     register,
@@ -114,6 +115,7 @@ export function useLoginForm() {
           toast.error("Error al registrar el usuario.");
           //lofire(error.message)
         } else if (authData.user) {
+          setRegisteredEmail(data.email);
           setIsSignUpSuccess(true);
           toast.success(
             "¡Registro exitoso! Por favor confirmá tu correo para activar la cuenta."
@@ -167,5 +169,6 @@ export function useLoginForm() {
     setVerContrasena,
     isSignUpSuccess,
     setIsSignUpSuccess,
+    registeredEmail,
   };
 }

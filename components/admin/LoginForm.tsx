@@ -21,10 +21,37 @@ export function LoginForm() {
     verContrasena,
     setVerContrasena,
     isSignUpSuccess,
-    setIsSignUpSuccess,
+    registeredEmail,
   } = useLoginForm();
 
   if (isSignUpSuccess) {
+    const getMailProvider = (email: string) => {
+      if (!email) return null;
+      const domain = email.split("@")[1]?.toLowerCase();
+      if (!domain) return null;
+
+      if (domain.includes("gmail")) {
+        return { name: "Gmail", url: "https://mail.google.com" };
+      }
+      if (
+        domain.includes("outlook") ||
+        domain.includes("hotmail") ||
+        domain.includes("live") ||
+        domain.includes("msn")
+      ) {
+        return { name: "Outlook", url: "https://outlook.live.com" };
+      }
+      if (domain.includes("yahoo")) {
+        return { name: "Yahoo Mail", url: "https://mail.yahoo.com" };
+      }
+      if (domain.includes("icloud")) {
+        return { name: "iCloud Mail", url: "https://www.icloud.com/mail" };
+      }
+      return { name: "mi correo", url: `https://mail.${domain}` };
+    };
+
+    const mailProvider = getMailProvider(registeredEmail);
+
     return (
       <div className="mt-10 mb-10 w-full flex flex-col items-center justify-center max-w-[420px] transition-all ease-in-out duration-300">
         <div className="w-full rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm flex flex-col items-center text-center gap-5">
@@ -45,13 +72,39 @@ export function LoginForm() {
             </svg>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-full">
             <h2 className="text-xl font-bold text-gray-900">
               ¡Registro completado!
             </h2>
-            <p className="text-sm text-gray-500 leading-relaxed">
+            <p className="text-sm text-gray-500 leading-relaxed mb-2">
               Usuario creado correctamente, por favor verifica tu casilla de correo para confirmar tu cuenta.
             </p>
+            {mailProvider && (
+              <a
+                href={mailProvider.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 rounded-lg bg-gray-900 hover:bg-gray-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                {mailProvider.name === "mi correo"
+                  ? "Ir a mi correo"
+                  : `Abrir ${mailProvider.name}`}
+              </a>
+            )}
           </div>
         </div>
       </div>
